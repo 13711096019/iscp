@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.HonorsDao">
+	
+	<!-- 荣誉对象 -->
+	<resultMap id="Honors" type="com.cn.iscp.entity.base.Honors">
+		<id column="ID" property="honorsId" jdbcType="BIGINT" />
+		<result column="honorsName" property="honorsName" jdbcType="VARCHAR" />
+		<result column="honorsUrl" property="honorsUrl" jdbcType="VARCHAR" />
+		<result column="section" property="section" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_honors </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.honorsName, A.honorsUrl, A.section, A.sort, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="Honors" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND A.section = 1 AND (A.honorsName LIKE '${statName}')
+			ORDER BY A.ID DESC
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.honorsName LIKE '${statName}')
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Honors">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Honors" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID = #{honorsId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 班级荣誉类型获取荣誉列表  -->
+	<select id="findBySection" resultMap="Honors" parameterType="java.lang.Integer">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.section = #{section,jdbcType=INTEGER}
+				AND A.status > 0
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Honors">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="honorsName != null &amp;&amp; honorsName != ''">
+				honorsName,
+			</if>
+			<if test="honorsUrl != null &amp;&amp; honorsUrl != ''">
+				honorsUrl,
+			</if>
+			<if test="section != null">
+				section,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="honorsName != null &amp;&amp; honorsName != ''">
+				#{honorsName,jdbcType=VARCHAR},
+			</if>
+			<if test="honorsUrl != null &amp;&amp; honorsUrl != ''">
+				#{honorsUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="section != null">
+				#{section,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Honors">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="honorsName != null &amp;&amp; honorsName != ''">
+				honorsName = #{honorsName,jdbcType=VARCHAR},
+			</if>
+			<if test="honorsUrl != null &amp;&amp; honorsUrl != ''">
+				honorsUrl = #{honorsUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{honorsId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

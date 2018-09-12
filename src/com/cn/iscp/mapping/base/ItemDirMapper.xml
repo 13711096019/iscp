@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.ItemDirDao">
+	
+	<!-- 分类目录对象 -->
+	<resultMap id="ItemDir" type="com.cn.iscp.entity.base.ItemDir">
+		<id column="ID" property="itemDirId" jdbcType="BIGINT" />
+		<result column="itemDirName" property="itemDirName" jdbcType="VARCHAR" />
+		<result column="itemDirDesc" property="itemDirDesc" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_itemdir </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.itemDirName, A.itemDirDesc, A.status, A.flagtime
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ItemDir" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{itemDirId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据名称获取对象 -->
+	<select id="findByName" resultMap="ItemDir" parameterType="java.lang.String">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.itemDirName = #{itemDirName,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="ItemDir">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 按条件获取信息列表 -->
+	<select id="findAll" resultMap="ItemDir">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+			ORDER BY A.ID ASC 
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.ItemDir">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="itemDirName != null &amp;&amp; itemDirName != ''">
+				itemDirName,
+			</if>
+			<if test="itemDirDesc != null &amp;&amp; itemDirDesc != ''">
+				itemDirDesc,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="itemDirName != null &amp;&amp; itemDirName != ''">
+				#{itemDirName,jdbcType=VARCHAR},
+			</if>
+			<if test="itemDirDesc != null &amp;&amp; itemDirDesc != ''">
+				#{itemDirDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.ItemDir">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="itemDirName != null &amp;&amp; itemDirName != ''">
+				itemDirName = #{itemDirName,jdbcType=VARCHAR},
+			</if>
+			<if test="itemDirDesc != null &amp;&amp; itemDirDesc != ''">
+				itemDirDesc = #{itemDirDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{itemDirId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

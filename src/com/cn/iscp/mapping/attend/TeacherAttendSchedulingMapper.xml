@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendSchedulingDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 打卡时间轴 -->
+	<resultMap id="TeacherAttendScheduling" type="com.cn.iscp.entity.attend.TeacherAttendScheduling">
+		<id column="ID" property="schedulingId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="shiftID" property="shiftId" jdbcType="BIGINT" />
+		<result column="weekNum" property="weekNum" jdbcType="INTEGER" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="isAbsenteeism" property="isAbsenteeism" jdbcType="INTEGER" />
+		<result column="normalCount" property="normalCount" jdbcType="INTEGER" />
+		<result column="lateCount" property="lateCount" jdbcType="INTEGER" />
+		<result column="leaveEarlyCount" property="leaveEarlyCount" jdbcType="INTEGER" />
+		<result column="absentCount" property="absentCount" jdbcType="INTEGER" />
+		<result column="outdoorCount" property="outdoorCount" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="shiftName" property="shiftName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendscheduling </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.userID, A.groupID, shiftID, A.weekNum, A.attendDate, A.isAbsenteeism, 
+		A.normalCount, A.lateCount, A.leaveEarlyCount, A.absentCount, A.outdoorCount, A.status
+	</sql>
+	
+	<!-- 根据老师编号获取排班信息  -->
+	<select id="findByUser" resultMap="TeacherAttendScheduling" parameterType="java.util.Map">
+		{
+			call p_attend_teacherattendscheduling_findByUser(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{startDate,jdbcType=VARCHAR,mode=IN}, 
+					#{endDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改考勤排班  -->
+	<select id="updateScheduling" resultMap="StateModel" parameterType="com.cn.iscp.entity.attend.TeacherAttendScheduling">
+		{
+			call p_attend_teacherattendscheduling_update(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{shiftId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据日期获取排班信息  -->
+	<select id="findByDate" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.TeacherAttendScheduling">
+		{
+			call p_attend_teacherattendscheduling_findByDate(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 生成考勤排班  -->
+	<select id="createScheduling" parameterType="java.lang.String">
+		{
+			call p_attend_teacherattendscheduling_create(
+					#{startDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 统计人员排班表信息  -->
+	<select id="censusCountByDate" parameterType="java.lang.String">
+		{
+			call p_attend_teacherattendscheduling_censusCountByDate(
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取各考勤状态下的日期 -->
+	<select id="censusDateByMonth" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.TeacherAttendScheduling">
+		{
+			call p_attend_teacherattendscheduling_censusDateByMonth(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据月份统计报表 -->
+	<select id="censusCountByMonth" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.TeacherAttendScheduling">
+		{
+			call p_attend_teacherattendscheduling_censusCountByMonth(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

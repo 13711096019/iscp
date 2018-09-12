@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.PatriarchDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 家长对象 -->
+	<resultMap id="Patriarch" type="com.cn.iscp.entity.base.Patriarch">
+		<id column="ID" property="patriarchId" jdbcType="BIGINT" />
+		<result column="patriarchName" property="patriarchName" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		<result column="birthday" property="birthday" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="motto" property="motto" jdbcType="VARCHAR" />
+		<result column="logAccount" property="logAccount" jdbcType="VARCHAR" />
+		<result column="logPassword" property="logPassword" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="passWord" property="passWord" jdbcType="VARCHAR" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_patriarch </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.patriarchName, A.sexID, A.birthday, A.mobile, A.email, 
+		A.headPortrait, A.note, A.motto, A.logAccount, A.logPassword, A.status, A.flagtime
+	</sql>
+	
+	<!-- 家长登录 -->
+	<select id="login" resultMap="Patriarch" parameterType="com.cn.iscp.entity.base.Patriarch">
+		{
+			call p_base_patriarch_login(
+					#{logAccount,jdbcType=VARCHAR,mode=IN}, 
+					#{logPassword,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据动态班级编号获取学生家长信息 -->
+	<select id="findByClassNum" resultMap="Patriarch" parameterType="java.lang.Long">
+		{
+			call p_base_patriarch_findByClassNum(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-老师为学生绑定登录家长 -->
+	<!-- <select id="handleByTeacher" resultMap="Patriarch" parameterType="com.cn.iscp.entity.base.Patriarch">
+		{
+			call p_base_patriarch_handleByTeacher(
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{mobile,jdbcType=VARCHAR,mode=IN}, 
+					#{passWord,jdbcType=VARCHAR,mode=IN}, 
+					#{headPortrait,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select> -->
+	
+	<!-- APP-家长绑定学生信息 -->
+	<!-- <select id="handleByPatriarch" resultMap="StateModel" parameterType="com.cn.iscp.entity.base.Patriarch">
+		{
+			call p_base_patriarch_handleByPatriarch(
+					#{studentName,jdbcType=VARCHAR,mode=IN}, 
+					#{studentIdCard,jdbcType=VARCHAR,mode=IN}, 
+					#{mobile,jdbcType=VARCHAR,mode=IN}, 
+					#{passWord,jdbcType=VARCHAR,mode=IN}, 
+					#{headPortrait,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select> -->
+	
+	<!-- APP-根据编号获取家长信息 -->
+	<select id="findById" resultMap="Patriarch" parameterType="java.lang.Long">
+		{
+			call p_base_patriarch_findById(
+					#{patriarchId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据手机号获取家长信息  -->
+	<select id="findByAccount" resultMap="Patriarch" parameterType="java.lang.String">
+		{
+			call p_base_patriarch_findByAccount(
+					#{patriarchId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改头像 -->
+	<update id="updateHeadPortrait" parameterType="com.cn.iscp.entity.base.Patriarch">
+		UPDATE <include refid="TableName" />
+			SET headPortrait = #{headPortrait,jdbcType=VARCHAR}, 
+				flagtime = #{flagtime,jdbcType=BIGINT}
+			WHERE ID = #{patriarchId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

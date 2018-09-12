@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.PushDao">
+	
+	<!-- 推送内容对象 -->
+	<resultMap id="Push" type="com.cn.iscp.entity.ligent.Push">
+		<id column="ID" property="pushId" jdbcType="BIGINT" />
+		<result column="pushKey" property="pushKey" jdbcType="INTEGER" />
+		<result column="pushType" property="pushType" jdbcType="INTEGER" />
+		<result column="pushCode" property="pushCode" jdbcType="INTEGER" />
+		<result column="pushNick" property="pushNick" jdbcType="VARCHAR" />
+		<result column="pushDesc" property="pushDesc" jdbcType="VARCHAR" />
+		<result column="pushPath" property="pushPath" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="getPushByCode" resultMap="Push" parameterType="java.lang.Integer">
+		SELECT * FROM t_ligent_push WHERE pushCode = #{pushCode, jdbcType=INTEGER}
+	</select>
+	
+	<!-- 修改过期数据状态 -->
+	<select id="handleInvalidRecords" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		{
+			call p_timer_handleInvalidRecords(
+					#{pushCode,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	<!-- 推送终端对象 -->
+	<resultMap id="PushModel" type="com.cn.iscp.model.PushModel">
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="machineCode" property="machineCode" jdbcType="VARCHAR" />
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="userType" property="userType" jdbcType="VARCHAR" />
+		<result column="keyID" property="keyId" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<!-- 所有班牌终端 -->
+	<select id="findAllMachineCode" resultMap="PushModel">
+		SELECT A.machineCode, A.classEntityUpgradeID 
+			FROM t_dbase_classmgr AS A 
+			WHERE A.`status` = 1
+	</select>
+		
+	<!-- 根据年级获取班级列表 -->
+	<select id="findByGrade" resultMap="PushModel" parameterType="java.lang.Long">
+		SELECT machineCode,classEntityUpgradeID 
+				FROM t_dbase_classmgr 
+				WHERE `status` = 1 
+					AND classEntityUpgradeID IN (SELECT ID FROM t_dbase_classentityupgrade 
+						WHERE gradeID = #{gradeId, jdbcType=BIGINT})
+	</select>
+		
+	<!-- 通知 -->
+	<select id="findByNotice" resultMap="PushModel">
+		SELECT machineCode,classEntityUpgradeID 
+				FROM t_dbase_classmgr 
+				WHERE `status` = 1 AND FIND_IN_SET(classEntityUpgradeID, 
+								(SELECT GROUP_CONCAT(classIDList) FROM t_push_notification
+								WHERE `status` = 1 AND startTime &lt; NOW() AND endTime &gt; NOW())
+							);
+	</select>
+	
+	<!-- 表扬 -->
+	<select id="findByPraise" resultMap="PushModel">
+		SELECT machineCode,classEntityUpgradeID 
+				FROM t_dbase_classmgr 
+				WHERE `status` = 1 AND FIND_IN_SET(classEntityUpgradeID, 
+								(SELECT GROUP_CONCAT(classIDList) FROM t_push_praisestudent
+								WHERE `status` = 1)
+							);
+	</select>
+	
+	<!-- 视频 -->
+	<select id="findByVideo" resultMap="PushModel">
+		SELECT machineCode,classEntityUpgradeID 
+				FROM t_dbase_classmgr 
+				WHERE `status` = 1 AND FIND_IN_SET(classEntityUpgradeID, 
+								(SELECT GROUP_CONCAT(classIDList) FROM t_push_videofile
+								WHERE `status` = 1 AND startTime &lt; NOW() AND endTime &gt; NOW())
+							);
+	</select>
+	
+	<!-- 提醒老师上课 -->
+	<select id="findTeacherByNextClass" resultMap="PushModel" resultType="java.lang.Long">
+		{
+			call p_ligent_push_findTeacherByNextClass(
+					#{sessionId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 倒计时 -->
+	<select id="findByCountdown" resultMap="PushModel">
+		SELECT machineCode,classEntityUpgradeID 
+				FROM t_dbase_classmgr 
+				WHERE `status` = 1 AND FIND_IN_SET(classEntityUpgradeID, 
+								(SELECT GROUP_CONCAT(classIDList) FROM t_push_countdown 
+								WHERE `status` = 1 AND startDate &lt; NOW() AND endDate &gt; NOW())
+							);
+	</select>
+	
+	<!-- 获取所有老师推送 -->
+	<select id="findAllTeacher" resultMap="PushModel">
+		{
+			call p_ligent_push_findAllTeacher()
+		}
+	</select>
+	
+	<!-- 获取边教边研讨论老师 -->
+	<select id="findTeacherByResearch" resultMap="PushModel" parameterType="java.util.Map">
+		{
+			call p_ligent_push_findTeacherByResearch(
+					#{researchId,jdbcType=BIGINT,mode=IN}, 
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取群聊用户列表 -->
+	<select id="findGroupChatUser" resultMap="PushModel" parameterType="java.lang.String">
+		{
+			call p_ligent_push_findUserByGroup(
+					#{groupId,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 校信通知 -->
+	<select id="findUserByNotify" resultMap="PushModel" resultType="java.lang.Long">
+		{
+			call p_ligent_push_findUserByNotify(
+					#{notifyId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取没查看作业的家长列表 -->
+	<select id="findPatriarchByNotCheckHomework" resultMap="PushModel" resultType="java.lang.Long">
+		{
+			call p_ligent_push_findPatriarchByNotCheckHomework(
+					#{homeworkId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	 
+	<!-- 获取当前需要提醒的日程提醒列表 -->
+	<select id="findUserByCurrent" resultMap="PushModel">
+		{
+			call p_ligent_push_findUserByCurrent()
+		}
+	</select>
+	
+	<!-- 老师请假推送 -->
+	<select id="findTeacherByTeacherLeave" resultMap="PushModel" parameterType="java.util.Map">
+		{
+			call p_ligent_push_findTeacherByTeacherLeave(
+					#{leaveId,jdbcType=BIGINT,mode=IN}, 
+					#{loginUserId,jdbcType=BIGINT,mode=IN}, 
+					#{isAuditor,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeConsutlItemDao">
+
+	<!-- 收费征询意见项目 -->
+	<resultMap id="ChargeConsutlItem" type="com.cn.iscp.entity.pay.ChargeConsutlItem">
+		<id column="ID" property="itemId" jdbcType="BIGINT" />
+		<result column="consutlID" property="consutlId" jdbcType="BIGINT" />
+		<result column="chargeTypeID" property="chargeTypeId" jdbcType="BIGINT" />
+		<result column="isAgree" property="isAgree" jdbcType="INTEGER" />
+		<result column="uniformType" property="uniformType" jdbcType="INTEGER" />
+		<result column="stature" property="stature" jdbcType="INTEGER" />
+		<result column="siteID" property="siteId" jdbcType="BIGINT" />
+		
+		<result column="typeNick" property="typeNick" jdbcType="VARCHAR" />
+		<result column="typeUnit" property="typeUnit" jdbcType="VARCHAR" />
+		<result column="typePrice" property="typePrice" jdbcType="INTEGER" />
+		<result column="typeDesc" property="typeDesc" jdbcType="VARCHAR" />
+		<result column="siteName" property="siteName" jdbcType="VARCHAR" />
+		<result column="sitePrice" property="sitePrice" jdbcType="INTEGER" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="isPay" property="isPay" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_pay_chargeconsultitem </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.consutlID, A.chargeTypeID, A.isAgree, A.uniformType, A.stature, A.siteID
+	</sql>
+	
+	<!-- 获取征询意见项目列表 -->
+	<select id="findByConsult" resultMap="ChargeConsutlItem" parameterType="java.lang.Long">
+		{
+			call p_pay_chargeconsultitem_findByConsult(
+					#{consutlId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

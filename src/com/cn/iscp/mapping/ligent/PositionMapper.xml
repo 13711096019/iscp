@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.PositionDao">
+	
+	<!-- 用户职位对象 -->
+	<resultMap id="Position" type="com.cn.iscp.entity.ligent.Position">
+		<result column="loginUserId" property="loginUserId" jdbcType="BIGINT" />
+		<result column="roleRank" property="roleRank" jdbcType="INTEGER" />
+		<result column="termNick" property="termNick" jdbcType="VARCHAR" />
+		<result column="isPlanChairman" property="isPlanChairman" jdbcType="INTEGER" />
+		<result column="isPlanDirector" property="isPlanDirector" jdbcType="INTEGER" />
+		<result column="isPlanHeadmaster" property="isPlanHeadmaster" jdbcType="INTEGER" />
+		<result column="isPlanMorality" property="isPlanMorality" jdbcType="INTEGER" />
+		<result column="isPlanEducation" property="isPlanEducation" jdbcType="INTEGER" />
+		<result column="isPlanGeneralAffairs" property="isPlanGeneralAffairs" jdbcType="INTEGER" />
+		<result column="isAllotTeacher" property="isAllotTeacher" jdbcType="INTEGER" />
+		<result column="isBigDirector" property="isBigDirector" jdbcType="INTEGER" />
+		<result column="isAdmin" property="isAdmin" jdbcType="INTEGER" />
+		<result column="isPrinter" property="isPrinter" jdbcType="INTEGER" />
+		<result column="isClassTeacher" property="isClassTeacher" jdbcType="INTEGER" />
+		<result column="isSubjectTeacher" property="isSubjectTeacher" jdbcType="INTEGER" />
+		<result column="teachingClassNum" property="teachingClassNum" jdbcType="BIGINT" />
+		<result column="teachingClassName" property="teachingClassName" jdbcType="VARCHAR" />
+		<result column="hasCheckLeavePower" property="hasCheckLeavePower" jdbcType="INTEGER" />
+		<result column="hasReferLeavePower" property="hasReferLeavePower" jdbcType="INTEGER" />
+		<result column="isAttendAdmin" property="isAttendAdmin" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 获取用户职位 -->
+	<select id="findUserPosition" resultMap="Position" parameterType="java.lang.Long">
+		{
+			call p_sys_findUserPosition(
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

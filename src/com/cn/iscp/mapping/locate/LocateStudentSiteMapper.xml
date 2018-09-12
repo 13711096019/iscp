@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.locate.LocateStudentSiteDao">
+	
+    <!-- 班次学生站点信息 -->
+    <resultMap id="LocateStudentSite" type="com.cn.iscp.entity.locate.LocateStudentSite">
+      <id column="ID" property="ssId" jdbcType="BIGINT"/>
+      <result column="busID" property="busId" jdbcType="BIGINT"/>
+      <result column="studentID" property="studentId" jdbcType="BIGINT"/>
+      <result column="studentCardPhy" property="studentCardPhy" jdbcType="VARCHAR"/>
+      <result column="siteID" property="siteId" jdbcType="BIGINT"/>
+      
+      <result column="studentName" property="studentName" jdbcType="VARCHAR"/>
+      <result column="headPortrait" property="headPortrait" jdbcType="VARCHAR"/>
+      <result column="patriarchMobile" property="patriarchMobile" jdbcType="VARCHAR"/>
+      <result column="siteName" property="siteName" jdbcType="VARCHAR"/>
+      <result column="classAlias" property="classAlias" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="TableName">t_locate_studentsite</sql>
+    
+    <sql id="ColumnList">
+      	A.ID, A.busID, A.studentID, A.studentCardPhy, A.siteID
+    </sql>
+	
+	<!-- 根据校车编号获取学生信息  -->
+	<select id="findByBus" resultMap="LocateStudentSite" parameterType="java.lang.Long">
+		{
+			call p_locate_studentsite_findByBus(
+					#{busId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

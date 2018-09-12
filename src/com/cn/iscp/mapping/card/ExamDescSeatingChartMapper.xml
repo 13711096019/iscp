@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamDescSeatingDao">
+	
+	<!-- 考试座位表对象 -->
+	<resultMap id="ExamDescSeating" type="com.cn.iscp.entity.card.exam.ExamDescSeating">
+		<id column="ID" property="seatingId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="examID" property="examId" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="rowNo" property="rowNo" jdbcType="INTEGER" />
+		<result column="colNo" property="colNo" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="sexId" property="sexId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_examdescseatingchart </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.examInfoID, A.examID, A.studentID, A.rowNo, A.colNo, A.status, A.note
+	</sql>
+	
+	<!-- PC-根据班级动态编号获取数据 -->
+	<select id="findByClass" resultMap="ExamDescSeating" parameterType="com.cn.iscp.entity.card.exam.ExamDescSeating">
+		SELECT A.rowNo,A.colNo,A.studentID,s.`name` AS studentName
+			FROM <include refid="TableName" /> AS A
+						LEFT JOIN t_base_student AS s ON s.ID=A.studentID
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+				AND A.examInfoID = #{examInfoId,jdbcType=BIGINT}
+			ORDER BY rowNo ASC, colNo ASC
+	</select>
+	
+	<!-- PC-处理考试班级座位表 -->
+	<select id="handleSeatingChart" parameterType="com.cn.iscp.entity.card.exam.ExamDescSeating">
+		{
+			call p_card_examdescseatingchart_handle(
+					#{examInfoId,jdbcType=BIGINT,mode=IN}, 
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studentNames,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 终端-获取考试临时座位表 -->
+	<select id="findSeatingChart" resultMap="ExamDescSeating" parameterType="com.cn.iscp.entity.card.exam.ExamDescSeating">
+		SELECT s.rowNo,s.colNo,t.`name` AS studentName,t.studentNum 
+			FROM t_dbase_seatingchart_session AS s
+				LEFT JOIN t_card_examdescseatingchart AS c ON s.rowNo=c.rowNo AND s.colNo=c.colNo
+						 AND c.classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+						 AND c.examInfoID = #{examInfoId,jdbcType=BIGINT}
+				LEFT JOIN t_base_student AS t ON t.ID=c.studentID
+			ORDER BY s.rowNo ASC, s.colNo ASC
+	</select>
+	
+</mapper>

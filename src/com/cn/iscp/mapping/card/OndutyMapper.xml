@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.OndutyDao">
+	
+	<!-- 班级值日对象 -->
+	<resultMap id="Onduty" type="com.cn.iscp.entity.card.Onduty">
+		<id column="ID" property="ondutyId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="weekNum" property="weekNum" jdbcType="INTEGER" />
+		<result column="read" property="read" jdbcType="VARCHAR" />
+		<result column="rest" property="rest" jdbcType="VARCHAR" />
+		<result column="meal" property="meal" jdbcType="VARCHAR" />
+		<result column="cleaning" property="cleaning" jdbcType="VARCHAR" />
+		<result column="platform" property="platform" jdbcType="VARCHAR" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="example" property="example" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_onduty </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.weekNum, A.read, A.rest, A.meal, A.cleaning, A.platform, A.source
+	</sql>
+	
+	<!-- 终端-根据动态班级编号获取一周值日列表 -->
+	<select id="findOndutyByWeek" resultMap="Onduty" parameterType="java.lang.Long">
+		{
+			call p_card_onduty_findOndutyByWeek(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.Onduty">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="read != null &amp;&amp; read != ''">
+				`read` = #{read,jdbcType=VARCHAR},
+			</if>
+			<if test="rest != null &amp;&amp; rest != ''">
+				rest = #{rest,jdbcType=VARCHAR},
+			</if>
+			<if test="meal != null &amp;&amp; meal != ''">
+				meal = #{meal,jdbcType=VARCHAR},
+			</if>
+			<if test="cleaning != null &amp;&amp; cleaning != ''">
+				cleaning = #{cleaning,jdbcType=VARCHAR},
+			</if>
+			<if test="platform != null &amp;&amp; platform != ''">
+				platform = #{platform,jdbcType=VARCHAR},
+			</if>
+			<if test="source != null &amp;&amp; source != ''">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+		</set>
+		WHERE classEntityUpgradeID = #{classNum,jdbcType=BIGINT} 
+			AND weekNum = #{weekNum,jdbcType=INTEGER}
+	</update>
+	
+</mapper>

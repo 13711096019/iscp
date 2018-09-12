@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.locate.LocateBusDao">
+	
+    <!-- 校车信息 -->
+    <resultMap id="LocateBus" type="com.cn.iscp.entity.locate.LocateBus">
+      <id column="ID" property="busId" jdbcType="BIGINT"/>
+      <result column="busNo" property="busNo" jdbcType="INTEGER"/>
+      <result column="busCode" property="busCode" jdbcType="VARCHAR"/>
+      <result column="direction" property="direction" jdbcType="VARCHAR"/>
+      <result column="siteCount" property="siteCount" jdbcType="INTEGER"/>
+      <result column="driverName" property="driverName" jdbcType="VARCHAR"/>
+      <result column="driverPhone" property="driverPhone" jdbcType="VARCHAR"/>
+      <result column="sort" property="sort" jdbcType="INTEGER"/>
+      <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="TableName">t_locate_bus</sql>
+    
+    <sql id="ColumnList">
+      	A.ID, A.busNo, A.busCode, A.direction, A.siteCount, A.driverName, 
+      	A.driverPhone, A.sort, A.status
+    </sql>
+    
+   	<!-- 根据编号获取校车信息 -->
+	<select id="findById" resultMap="LocateBus" parameterType="java.lang.Long">
+		{
+			call p_locate_bus_findById(
+					#{busId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+    
+   	<!-- 获取所有校车信息 -->
+	<select id="findAll" resultMap="LocateBus">
+		{
+			call p_locate_bus_findAll()
+		}
+	</select>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="LocateBus" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND (A.direction LIKE '${statName}')
+			ORDER BY A.busNo  
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND (A.direction LIKE '${statName}')
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="LocateBus">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` =1
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.locate.LocateBus">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="busId != null">
+				ID,
+			</if>
+			<if test="busNo != null">
+				busNo,
+			</if>
+			<if test="busCode != null &amp;&amp; busCode != ''">
+				busCode,
+			</if>
+			<if test="direction != null &amp;&amp; direction != ''">
+				direction,
+			</if>
+			<if test="siteCount != null">
+				siteCount,
+			</if>
+			<if test="driverName != null &amp;&amp; driverName != ''">
+				driverName,
+			</if>
+			<if test="driverPhone != null &amp;&amp; driverPhone != ''">
+				driverPhone,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="busId != null">
+				#{busId,jdbcType=BIGINT},
+			</if>
+			<if test="busNo != null">
+				#{busNo,jdbcType=BIGINT},
+			</if>
+			<if test="busCode != null &amp;&amp; busCode != ''">
+				#{busCode,jdbcType=VARCHAR},
+			</if>
+			<if test="direction != null &amp;&amp; direction != ''">
+				#{direction,jdbcType=VARCHAR},
+			</if>
+			<if test="siteCount != null">
+				#{siteCount,jdbcType=INTEGER},
+			</if>
+			<if test="driverName != null &amp;&amp; driverName != ''">
+				#{driverName,jdbcType=VARCHAR},
+			</if>
+			<if test="driverPhone != null &amp;&amp; driverPhone != ''">
+				#{driverPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.locate.LocateBus">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="busNo != null">
+				busNo = #{busNo,jdbcType=BIGINT},
+			</if>
+			<if test="busCode != null &amp;&amp; busCode != ''">
+				busCode = #{busCode,jdbcType=VARCHAR},
+			</if>
+			<if test="direction != null &amp;&amp; direction != ''">
+				direction = #{direction,jdbcType=VARCHAR},
+			</if>
+			<if test="siteCount != null">
+				siteCount = #{siteCount,jdbcType=INTEGER},
+			</if>
+			<if test="driverName != null &amp;&amp; driverName != ''">
+				driverName = #{driverName,jdbcType=VARCHAR},
+			</if>
+			<if test="driverPhone != null &amp;&amp; driverPhone != ''">
+				driverPhone = #{driverPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			
+		</set>
+		WHERE ID = #{busId,jdbcType=BIGINT}
+	</update>
+	
+	
+</mapper>

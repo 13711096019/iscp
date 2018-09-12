@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.chat.UserLabelDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 标签关系对象 -->
+	<resultMap id="UserLabel" type="com.cn.iscp.entity.chat.UserLabel">
+		<id column="ID" property="tlId" jdbcType="BIGINT" />
+		<result column="labelID" property="labelId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="friendID" property="friendId" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_chat_userlabel </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.labelID, A.userID, A.friendID, A.createTime
+	</sql>
+	
+	<!-- 分配好友标签 -->
+	<select id="allotLabel" parameterType="com.cn.iscp.entity.chat.UserLabel">
+         {
+			call p_chat_userlabel_handle(
+                	#{userId,jdbcType=BIGINT,mode=IN}, 
+                	#{friendId,jdbcType=BIGINT,mode=IN}, 
+					#{labelIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除好友 -->
+	<select id="deleteFriend" resultMap="StateModel" parameterType="com.cn.iscp.entity.chat.UserLabel">
+         {
+			call p_chat_userlabel_delete(
+                	#{userId,jdbcType=BIGINT,mode=IN}, 
+                	#{friendId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	
+	<!-- 用户对象 -->
+	<resultMap id="AuthUser" type="com.cn.iscp.entity.auth.User">
+		<id column="ID" property="userId" jdbcType="BIGINT" />
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="userType" property="userType" jdbcType="INTEGER" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		
+		<result column="userNames" property="userNames" jdbcType="VARCHAR" />
+		<result column="labelNames" property="labelNames" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 群聊-根据老师编号集合获取老师姓名和头像 -->
+	<select id="findTeacherByMessage" resultMap="AuthUser" parameterType="java.util.Map">
+		SELECT A.ID AS userId, A.userKey, A.userName, b.headPortrait,b.mobile
+			FROM t_auth_usermgr AS A 
+				LEFT JOIN t_base_teacher AS b ON A.ID=b.ID 
+			WHERE FIND_IN_SET(A.ID, #{userNames,jdbcType=VARCHAR})
+	</select>
+	
+	<!-- 根据标签获取通讯录好友列表 -->
+	<select id="findFriendByLabel" resultMap="AuthUser" parameterType="com.cn.iscp.entity.chat.UserLabel">
+		{
+			call p_chat_findFriendByLabel(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{labelId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据账号获取用户列表 -->
+	<select id="findFriendByUserKeys" resultMap="AuthUser" parameterType="com.cn.iscp.entity.chat.Label">
+		{
+			call p_chat_findFriendByUserKeys(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{friendIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据手机号或姓名获取用户列表 -->
+	<select id="findFriendByKeywords" resultMap="AuthUser" parameterType="com.cn.iscp.entity.chat.Label">
+		{
+			call p_chat_findFriendByKeywords(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{friendIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

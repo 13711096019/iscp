@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.DailyStatisticsDao">
+	
+	<!-- 每日考勤人数统计表 -->
+	<resultMap id="DailyStatistics" type="com.cn.iscp.entity.attend.DailyStatistics">
+		<id column="ID" property="statisticsId" jdbcType="BIGINT" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="timeType" property="timeType" jdbcType="INTEGER" />
+		<result column="teacherOverallCount" property="teacherOverallCount" jdbcType="INTEGER" />
+		<result column="teacherRecessCount" property="teacherRecessCount" jdbcType="INTEGER" />
+		<result column="teacherApplicantCount" property="teacherApplicantCount" jdbcType="INTEGER" />
+		<result column="teacherAttendeesCount" property="teacherAttendeesCount" jdbcType="INTEGER" />
+		<result column="teacherAbsenteesCount" property="teacherAbsenteesCount" jdbcType="INTEGER" />
+		<result column="teacherLeaveCount" property="teacherLeaveCount" jdbcType="INTEGER" />
+		<result column="studentOverallCount" property="studentOverallCount" jdbcType="INTEGER" />
+		<result column="studentApplicantCount" property="studentApplicantCount" jdbcType="INTEGER" />
+		<result column="studentAttendeesCount" property="studentAttendeesCount" jdbcType="INTEGER" />
+		<result column="studentAbsenteesCount" property="studentAbsenteesCount" jdbcType="INTEGER" />
+		<result column="studentLeaveCount" property="studentLeaveCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_dailystatistics </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.attendDate, A.timeType, teacherOverallCount, A.teacherRecessCount, 
+		A.teacherApplicantCount, A.teacherAttendeesCount, A.teacherAbsenteesCount, 
+		A.teacherLeaveCount, A.studentOverallCount, A.studentApplicantCount, 
+		A.studentAttendeesCount, A.studentAbsenteesCount, A.studentLeaveCount
+	</sql>
+	
+	<!-- 生成每日考勤人数统计记录  -->
+	<select id="censusDailyStatistics" resultMap="DailyStatistics">
+		{
+			call p_attend_dailystatistics_census()
+		}
+	</select>
+	
+	<!-- 分页获取出勤报表  -->
+	<select id="findByPage" resultMap="DailyStatistics" parameterType="java.lang.Integer">
+		{
+			call p_attend_dailystatistics_findByPage(
+					#{pageCount,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

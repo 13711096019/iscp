@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendAxisDao">
+	
+	<!-- 打卡时间轴 -->
+	<resultMap id="TeacherAttendAxis" type="com.cn.iscp.entity.attend.TeacherAttendAxis">
+		<id column="ID" property="axisId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="shiftID" property="shiftId" jdbcType="BIGINT" />
+		<result column="axisType" property="axisType" jdbcType="INTEGER" />
+		<result column="normalTime" property="normalTime" jdbcType="VARCHAR" />
+		<result column="timeInterval" property="timeInterval" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendaxis </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.shiftID, axisType, A.normalTime, A.timeInterval, A.sort, A.status
+	</sql>
+	
+	
+	<!-- 根据班次组获取打卡时间轴  -->
+	<select id="findByShift" resultMap="TeacherAttendAxis" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendaxis_findByShift(
+					#{shiftId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

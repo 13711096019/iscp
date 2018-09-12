@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.ClassRoomDao">
+	
+	<!-- 教室位置对象 -->
+	<resultMap id="ClassRoom" type="com.cn.iscp.entity.base.ClassRoom">
+		<id column="ID" property="roomId" jdbcType="BIGINT" />
+		<result column="classRoomCode" property="roomCode" jdbcType="VARCHAR" />
+		<result column="classEntityID" property="classEntityId" jdbcType="BIGINT" />
+		<result column="classRoomName" property="roomName" jdbcType="VARCHAR" />
+		<result column="classRoomLocation" property="roomLocation" jdbcType="VARCHAR" />
+		<result column="classRoomUsage" property="roomUsage" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_classroommgr </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classRoomCode, A.classEntityID, A.classRoomName, A.classRoomLocation, 
+		A.classRoomUsage, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="ClassRoom" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+					AND (A.classRoomCode LIKE '${statName}' OR A.classRoomName LIKE '${statName}'
+						 OR A.classRoomLocation LIKE '${statName}' OR A.classRoomUsage LIKE '${statName}')
+			ORDER BY A.flagtime DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+					AND (A.classRoomCode LIKE '${statName}' OR A.classRoomName LIKE '${statName}'
+						 OR A.classRoomLocation LIKE '${statName}' OR A.classRoomUsage LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ClassRoom" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{roomId,jdbcType=BIGINT}
+	</select>
+	 
+	<!-- 按条件获取信息列表 -->
+	<select id="findAll" resultMap="ClassRoom">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+			ORDER BY A.flagtime DESC 
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.ClassRoom">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="roomCode != null &amp;&amp; roomCode != ''">
+				classRoomCode,
+			</if>
+			<if test="classEntityId != null">
+				classEntityID,
+			</if>
+			<if test="roomName != null &amp;&amp; roomName != ''">
+				classRoomName,
+			</if>
+			<if test="roomLocation != null &amp;&amp; roomLocation != ''">
+				classRoomLocation,
+			</if>
+			<if test="roomUsage != null &amp;&amp; roomUsage != ''">
+				classRoomUsage,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="roomCode != null &amp;&amp; roomCode != ''">
+				#{roomCode,jdbcType=VARCHAR},
+			</if>
+			<if test="classEntityId != null">
+				#{classEntityId,jdbcType=BIGINT},
+			</if>
+			<if test="roomName != null &amp;&amp; roomName != ''">
+				#{roomName,jdbcType=VARCHAR},
+			</if>
+			<if test="roomLocation != null &amp;&amp; roomLocation != ''">
+				#{roomLocation,jdbcType=VARCHAR},
+			</if>
+			<if test="roomUsage != null &amp;&amp; roomUsage != ''">
+				#{roomUsage,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.ClassRoom">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="roomCode != null &amp;&amp; roomCode != ''">
+				classRoomCode = #{roomCode,jdbcType=VARCHAR},
+			</if>
+			<if test="classEntityId != null">
+				classEntityID = #{value,jdbcType=INTEGER},
+			</if>
+			<if test="roomName != null &amp;&amp; roomName != ''">
+				classRoomName = #{roomName,jdbcType=VARCHAR},
+			</if>
+			<if test="roomLocation != null &amp;&amp; roomLocation != ''">
+				classRoomLocation = #{roomLocation,jdbcType=VARCHAR},
+			</if>
+			<if test="roomUsage != null &amp;&amp; roomUsage != ''">
+				classRoomUsage = #{roomUsage,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{roomId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

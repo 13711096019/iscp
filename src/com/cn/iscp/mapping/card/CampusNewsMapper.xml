@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.CampusNewsDao">
+	
+	<!-- 校园新闻对象 -->
+	<resultMap id="CampusNews" type="com.cn.iscp.entity.card.CampusNews">
+		<id column="ID" property="newsId" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="link" property="link" jdbcType="VARCHAR" />
+		<result column="newsMold" property="newsMold" jdbcType="INTEGER" />
+		<result column="newsType" property="newsType" jdbcType="INTEGER" />
+		<result column="hasValidDate" property="hasValidDate" jdbcType="INTEGER" />
+		<result column="startTime" property="startTime" jdbcType="VARCHAR" />
+		<result column="endTime" property="endTime" jdbcType="VARCHAR" />
+		<result column="coverPic" property="coverPic" jdbcType="VARCHAR" />
+		<result column="uploadTime" property="uploadTime" jdbcType="VARCHAR" />
+		<result column="uploadUserID" property="uploadUserId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="newsTypeName" property="newsTypeName" jdbcType="VARCHAR" />
+		<result column="uploadUserName" property="uploadUserName" jdbcType="VARCHAR" />
+		<result column="uploadUserPic" property="uploadUserPic" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_campusnews </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.title, A.content, A.link, A.newsMold, A.newsType, A.hasValidDate, 
+		A.startTime, A.endTime, A.coverPic, A.uploadTime, A.uploadUserID, 
+		A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="CampusNews" parameterType="java.util.Map">
+		SELECT A.ID, A.title, A.startTime, A.endTime, A.coverPic, sy.itemFileName AS newsTypeName, A.uploadUserID
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_base_itemfile AS sy on sy.ID = A.newsType AND sy.itemDirID = #{itemCordNewsType,jdbcType=INTEGER}
+			WHERE A.`status` = ${status} AND A.newsMold = ${newsMold}
+				AND (A.title LIKE '${statName}' OR A.content LIKE '${statName}')
+			ORDER BY A.flagtime DESC
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` = ${status} AND A.newsMold = ${newsMold} 
+				AND (A.title LIKE '${statName}' OR A.content LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="CampusNews" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />,sy.itemFileName AS newsTypeName,
+				s.teacherName AS uploadUserName,s.headPortrait AS uploadUserPic
+			FROM <include refid="TableName" /> AS A
+				LEFT JOIN t_base_teacher AS s on s.ID = A.uploadUserID
+				LEFT JOIN t_base_itemfile AS sy on sy.ID = A.newsType AND sy.itemDirID = #{itemCordNewsType,jdbcType=INTEGER}
+			WHERE A.ID = #{newsId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="newsId" 
+				parameterType="com.cn.iscp.entity.card.CampusNews">  
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="title != null &amp;&amp; title != ''">
+				title,
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content,
+			</if>
+			<if test="link != null &amp;&amp; link != ''">
+				link,
+			</if>
+			<if test="newsMold != null">
+				newsMold,
+			</if>
+			<if test="newsType != null">
+				newsType,
+			</if>
+			<if test="hasValidDate != null">
+				hasValidDate,
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime,
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime,
+			</if>
+			<if test="coverPic != null &amp;&amp; coverPic != ''">
+				coverPic,
+			</if>
+			<if test="uploadTime != null &amp;&amp; uploadTime != ''">
+				uploadTime,
+			</if>
+			<if test="uploadUserId != null">
+				uploadUserID,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="title != null &amp;&amp; title != ''">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				#{content,jdbcType=VARCHAR},
+			</if>
+			<if test="link != null &amp;&amp; link != ''">
+				#{link,jdbcType=VARCHAR},
+			</if>
+			<if test="newsMold != null">
+				#{newsMold,jdbcType=BIGINT},
+			</if>
+			<if test="newsType != null">
+				#{newsType,jdbcType=BIGINT},
+			</if>
+			<if test="hasValidDate != null">
+				#{hasValidDate,jdbcType=INTEGER},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				#{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				#{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="coverPic != null &amp;&amp; coverPic != ''">
+				#{coverPic,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadTime != null &amp;&amp; uploadTime != ''">
+				#{uploadTime,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadUserId != null">
+				#{uploadUserId,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.CampusNews">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="title != null &amp;&amp; title != ''">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content = #{content,jdbcType=VARCHAR},
+			</if>
+			<if test="link != null &amp;&amp; link != ''">
+				link = #{link,jdbcType=VARCHAR},
+			</if>
+			<if test="newsType != null">
+				newsType = #{newsType,jdbcType=INTEGER},
+			</if>
+			<if test="hasValidDate != null">
+				hasValidDate = #{hasValidDate,jdbcType=INTEGER},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime = #{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime = #{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="coverPic != null &amp;&amp; coverPic != ''">
+				coverPic = #{coverPic,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadTime != null &amp;&amp; uploadTime != ''">
+				uploadTime = #{uploadTime,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadUserId != null">
+				uploadUserID = #{uploadUserId,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{newsId,jdbcType=BIGINT}
+	</update>
+	
+	
+	<!-- 终端-获取最近6条新闻 -->
+	<select id="findNewsBySix" resultMap="CampusNews" parameterType="java.lang.Integer">
+		SELECT ID, title, link, coverPic, uploadTime
+			FROM <include refid="TableName" /> 
+			WHERE startTime &lt;= NOW() AND endTime &gt;= NOW() 
+				AND `status` = 1 AND newsMold = #{newsMold,jdbcType=INTEGER}
+			ORDER BY uploadTime DESC
+			LIMIT 0,6
+	</select>
+	
+	<!-- 终端-获取最近8条新闻信息 -->
+	<select id="findNewsByEight" resultMap="CampusNews" parameterType="java.lang.Integer">
+		SELECT ID, title, link, coverPic, uploadTime, startTime, endTime
+			FROM <include refid="TableName" /> 
+			WHERE startTime &lt;= NOW() AND endTime &gt;= NOW()
+				AND `status` = 1 AND newsMold = #{newsMold,jdbcType=INTEGER}
+			ORDER BY uploadTime DESC
+			LIMIT 0,8
+	</select>
+	
+	<!-- 终端-获取最近新闻信息 -->
+	<select id="findNewsByAll" resultMap="CampusNews" parameterType="java.lang.Integer">
+		SELECT ID, title, link, coverPic, uploadTime, startTime, endTime
+			FROM <include refid="TableName" /> 
+			WHERE startTime &lt;= NOW() AND endTime &gt;= NOW()
+				AND `status` = 1 AND newsMold = #{newsMold,jdbcType=INTEGER}
+			ORDER BY uploadTime DESC
+	</select>
+	
+	<!-- 终端-根据类别获取信息 -->
+	<select id="findNewsByMold" resultMap="CampusNews" parameterType="java.lang.Integer">
+		SELECT ID, title, link, coverPic, uploadTime, startTime, endTime
+			FROM <include refid="TableName" /> 
+			WHERE startTime &lt;= NOW() AND endTime &gt;= NOW() 
+				AND `status` = 1 AND newsMold = #{newsMold,jdbcType=INTEGER}
+			ORDER BY uploadTime DESC
+	</select>
+	
+</mapper>

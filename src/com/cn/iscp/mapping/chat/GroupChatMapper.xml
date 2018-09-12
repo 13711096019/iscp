@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.chat.GroupChatDao">
+	
+	<!-- 对象 -->
+	<resultMap id="GroupChat" type="com.cn.iscp.entity.chat.GroupChat">
+		<id column="ID" property="groupchatId" jdbcType="BIGINT" />
+		<id column="groupID" property="groupId" jdbcType="VARCHAR" />
+		<result column="groupName" property="groupName" jdbcType="VARCHAR" />
+		<result column="userIds" property="userIds" jdbcType="VARCHAR" />
+		<result column="flockNotice" property="flockNotice" jdbcType="VARCHAR" />
+		<result column="allowInvite" property="allowInvite" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_chat_groupchat </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.groupName, A.userIds, A.flockNotice, A.allowInvite
+	</sql>
+	
+	<!-- PC-根据群编号获取对象 -->
+	<select id="findByGroupId" resultMap="GroupChat" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.groupID = #{groupId,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- PC-根据群编号解散群聊 -->
+	<delete id="deleteGroupchat" parameterType="java.lang.Long">
+		DELETE FROM <include refid="TableName" /> 
+			WHERE groupID = #{groupId,jdbcType=VARCHAR} 
+	</delete>
+	
+	<!-- PC-保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.chat.GroupChat">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null &amp;&amp; groupId != ''">
+				groupID,
+			</if>
+			<if test="groupName != null &amp;&amp; groupName != ''">
+				groupName,
+			</if>
+			<if test="userIds != null &amp;&amp; userIds != ''">
+				userIds,
+			</if>
+			<if test="flockNotice != null &amp;&amp; flockNotice != ''">
+				flockNotice,
+			</if>
+			<if test="allowInvite != null">
+				allowInvite,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null &amp;&amp; groupId != ''">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="groupName != null &amp;&amp; groupName != ''">
+				#{groupName,jdbcType=VARCHAR},
+			</if>
+			<if test="userIds != null &amp;&amp; userIds != ''">
+				#{userIds,jdbcType=VARCHAR},
+			</if>
+			<if test="flockNotice != null &amp;&amp; flockNotice != ''">
+				#{flockNotice,jdbcType=VARCHAR},
+			</if>
+			<if test="allowInvite != null">
+				#{allowInvite,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.chat.GroupChat">
+	    UPDATE <include refid="TableName"/>
+	    <set>
+	        <if test="groupName != null &amp;&amp; groupName != ''">
+				groupName = #{groupName,jdbcType=VARCHAR},
+			</if>
+			<if test="userIds != null &amp;&amp; userIds != ''">
+				userIds = #{userIds,jdbcType=VARCHAR},
+			</if>
+			<if test="flockNotice != null &amp;&amp; flockNotice != ''">
+				flockNotice = #{flockNotice,jdbcType=VARCHAR},
+			</if>
+			<if test="allowInvite != null">
+				allowInvite = #{allowInvite,jdbcType=INTEGER},
+			</if>
+	    </set> 
+	    WHERE groupID = #{groupId,jdbcType=VARCHAR} 
+	</update>
+	
+</mapper>

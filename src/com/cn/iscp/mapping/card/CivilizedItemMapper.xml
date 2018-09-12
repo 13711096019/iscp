@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.civilized.CivilizedItemDao">
+	
+	<!-- 创文规则大项对象 -->
+	<resultMap id="CivilizedItem" type="com.cn.iscp.entity.card.civilized.CivilizedItem">
+		<id column="ID" property="bigItemId" jdbcType="BIGINT" />
+		<result column="bigItem" property="bigItemName" jdbcType="VARCHAR" />
+		<result column="saveFieldName" property="saveFieldName" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_createcivilization_bigitem </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.bigItem, A.saveFieldName, A.sort
+	</sql>
+	
+	<!-- 获取所有信息列表 -->
+	<select id="findAll" resultMap="CivilizedItem">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			ORDER BY A.sort ASC 
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="CivilizedItem" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{bigItemId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.card.civilized.CivilizedItem">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="gradeId != null">
+				gradeID,
+			</if>
+			<if test="bigItemName != null &amp;&amp; bigItemName != ''">
+				bigItem,
+			</if>
+			<if test="saveFieldName != null &amp;&amp; saveFieldName != ''">
+				saveFieldName,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bigItemName != null &amp;&amp; bigItemName != ''">
+				#{bigItemName,jdbcType=VARCHAR},
+			</if>
+			<if test="saveFieldName != null &amp;&amp; saveFieldName != ''">
+				#{saveFieldName,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.civilized.CivilizedItem">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="bigItemName != null &amp;&amp; bigItemName != ''">
+				bigItem = #{bigItemName,jdbcType=VARCHAR},
+			</if>
+			<if test="saveFieldName != null &amp;&amp; saveFieldName != ''">
+				saveFieldName = #{saveFieldName,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{bigItemId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

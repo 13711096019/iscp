@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.ClassleaderDao">
+	
+	<!-- 班干部对象 -->
+	<resultMap id="Classleader" type="com.cn.iscp.entity.base.Classleader">
+		<id column="ID" property="classleaderId" jdbcType="BIGINT" />
+		<result column="classLeaderType" property="classLeaderType" jdbcType="BIGINT" />
+		<result column="classleaderName" property="classleaderName" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="dutyDesc" property="dutyDesc" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+	</resultMap>
+
+   
+    <sql id="TableName"> t_base_classleader </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classLeaderType, A.classleaderName, A.sort, A.dutyDesc, A.status
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="Classleader" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.classleaderName LIKE '${statName}')
+			ORDER BY A.classLeaderType DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.classleaderName LIKE '${statName}')
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Classleader">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.classLeaderType DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Classleader" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID = #{classleaderId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 班干部类型获取班干部列表  -->
+	<select id="findBySection" resultMap="Classleader" parameterType="java.lang.Integer">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.classLeaderType = #{classLeaderType,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Classleader">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		    <if test="classLeaderType != null">
+				classLeaderType,
+			</if>
+			<if test="classleaderName != null &amp;&amp; classleaderName != ''">
+				classleaderName,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="dutyDesc != null &amp;&amp; dutyDesc != ''">
+				dutyDesc,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		    <if test="classLeaderType != null">
+				#{classLeaderType,jdbcType=INTEGER},
+			</if>
+			<if test="classleaderName != null &amp;&amp; classleaderName != ''">
+				#{classleaderName,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="dutyDesc != null &amp;&amp; dutyDesc != ''">
+				#{dutyDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Classleader">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="classleaderName != null &amp;&amp; classleaderName != ''">
+				classleaderName = #{classleaderName,jdbcType=VARCHAR},
+			</if>
+			<if test="dutyDesc != null &amp;&amp; dutyDesc != ''">
+				dutyDesc = #{dutyDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="classLeaderType != null">
+				classLeaderType = #{classLeaderType,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{classleaderId,jdbcType=BIGINT}
+	</update>
+</mapper>

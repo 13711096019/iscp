@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.LeaveDao">
+	
+	<!-- 班级值日对象 -->
+	<resultMap id="Leave" type="com.cn.iscp.entity.card.Leave">
+		<id column="ID" property="leaveId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="periodID" property="periodId" jdbcType="INTEGER" />
+		<result column="askForLeaveDate" property="leaveDate" jdbcType="VARCHAR" />
+		<result column="askForLeaveDate_begin" property="leaveStartDate" jdbcType="VARCHAR" />
+		<result column="askForLeaveDate_end" property="leaveEndDate" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="askForLeaveDayCount" property="leaveDayCount" jdbcType="INTEGER" />
+		<result column="askForLeaveHourCount" property="leaveHourCount" jdbcType="INTEGER" />
+		<result column="askForLeaveReason" property="leaveReason" jdbcType="VARCHAR" />
+		
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="itemFileName" property="itemFileName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_askforleave </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.studentID, A.periodID, 
+		A.askForLeaveDate, askForLeaveDate_begin, askForLeaveDate_end, A.createTime, 
+		A.askForLeaveDayCount, A.askForLeaveHourCount, A.askForLeaveReason
+	</sql>
+	
+	<!-- PC-获取班级请假学生列表  -->
+	<select id="findLeaveByDate" resultMap="Leave" parameterType="com.cn.iscp.entity.card.Leave">
+		{
+			call p_card_findLeaveByDate(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{leaveDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-根据动态班级编号获取最近请假记录  -->
+	<select id="findLeaveByClass" resultMap="Leave" parameterType="com.cn.iscp.entity.card.Leave">
+		{
+			call p_card_findLeaveByClass(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 家长端-根据学生编号获取最近请假记录  -->
+	<select id="findLeaveByStudent" resultMap="Leave" parameterType="com.cn.iscp.entity.card.Leave">
+		{
+			call p_card_findLeaveByStudent(
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-学生请假  -->
+	<select id="addLeave" resultMap="Leave" parameterType="com.cn.iscp.entity.card.Leave">
+		{
+			call p_card_addLeave(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{periodId,jdbcType=INTEGER,mode=IN}, 
+					#{leaveStartDate,jdbcType=VARCHAR,mode=IN}, 
+					#{leaveEndDate,jdbcType=VARCHAR,mode=IN}, 
+					#{leaveDayCount,jdbcType=INTEGER,mode=IN}, 
+					#{leaveReason,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-删除学生请假记录  -->
+	<delete id="delLeave" parameterType="java.lang.Long">
+		DELETE FROM t_card_askforleave WHERE ID = #{leaveId,jdbcType=BIGINT,mode=IN}
+	</delete>
+	
+</mapper>

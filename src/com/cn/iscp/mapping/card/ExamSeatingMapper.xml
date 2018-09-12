@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamSeatingDao">
+	
+	<!-- 试卷座位表对象 -->
+	<resultMap id="ExamSeating" type="com.cn.iscp.entity.card.exam.ExamSeating">
+		<id column="ID" property="seatingId" jdbcType="BIGINT" />
+		<result column="tempID" property="tempId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="rowNo" property="rowNo" jdbcType="INTEGER" />
+		<result column="colNo" property="colNo" jdbcType="INTEGER" />
+		
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="sexId" property="sexId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_examseatingchart </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.tempID, A.classEntityUpgradeID, A.studentID, A.rowNo, A.colNo
+	</sql>
+	
+	<!-- PC-根据班级动态编号获取数据 -->
+	<select id="findByClass" resultMap="ExamSeating" parameterType="com.cn.iscp.entity.card.exam.ExamSeating">
+		SELECT A.rowNo,A.colNo,A.studentID,s.`name` AS studentName
+			FROM <include refid="TableName" /> AS A
+				LEFT JOIN t_base_student AS s ON s.ID=A.studentID
+			WHERE A.tempID = #{tempId,jdbcType=BIGINT} 
+					AND classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+			ORDER BY rowNo ASC, colNo ASC
+	</select>
+	
+	<!-- PC-处理考试模板班级座位表 -->
+	<select id="handleSeatingChart" parameterType="com.cn.iscp.entity.card.exam.ExamSeating">
+		{
+			call p_card_examseating_handle(
+					#{tempId,jdbcType=BIGINT,mode=IN}, 
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studentNames,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

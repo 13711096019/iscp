@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeItemDao">
+	
+    <!-- 收费设置 -->
+    <resultMap id="ChargeItem" type="com.cn.iscp.entity.pay.ChargeItem" >
+       <id column="ID" property="chargeItemId" jdbcType="BIGINT"/>
+       <result column="orderID" property="orderId" jdbcType="BIGINT"/>
+       <result column="chargeTypeID" property="chargeTypeId" jdbcType="BIGINT"/>
+       <result column="gradeID" property="gradeId" jdbcType="BIGINT"/>
+       <result column="totalPrice" property="totalPrice" jdbcType="VARCHAR"/>
+       <result column="title" property="title" jdbcType="VARCHAR"/>
+       <result column="content" property="content" jdbcType="VARCHAR"/>
+       <result column="status" property="status" jdbcType="INTEGER"/>
+       
+       <result column="isMust" property="isMust" jdbcType="INTEGER"/>
+       <result column="isPay" property="isPay" jdbcType="INTEGER"/>
+       <result column="typeName" property="typeName" jdbcType="VARCHAR" />
+       <result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <sql id="TableName">t_pay_chargeitem</sql>
+    
+    <sql id="ColumnList">
+       A.ID,A.orderID,A.chargeTypeId,A.gradeID,A.totalPrice,A.title,A.content,A.status
+    </sql>
+	
+	<!-- 根据工单编号获取缴费项列表 -->
+	<select id="findByOrder" resultMap="ChargeItem" parameterType="com.cn.iscp.entity.pay.ChargeSeating">
+		{
+			call p_pay_chargeitem_findByOrder(
+					#{orderId,jdbcType=BIGINT,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+    
+    <!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="ChargeItem" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />,p.typeName,g.gradeName
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_base_grade AS g ON g.ID=A.gradeID
+			LEFT JOIN t_pay_chargetype AS p ON p.ID=A.chargeTypeId
+			WHERE A.status > 0 AND (A.title LIKE '${statName}')
+			ORDER BY A.gradeID  
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.title LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ChargeItem" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_base_grade AS g ON g.ID=A.gradeID
+			LEFT JOIN t_pay_chargetype AS p ON p.ID=A.chargeTypeID
+			WHERE A.ID = #{chargeTypeId,jdbcType=BIGINT}
+	</select>
+	
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.pay.ChargeType">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="chargeTypeId != null">
+				chargeTypeId,
+			</if>
+			<if test="gradeId != null">
+				gradeID,
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				totalPrice,
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				title,
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="chargeTypeId != null">
+				#{chargeTypeId,jdbcType=BIGINT},
+			</if>
+			<if test="gradeId != null">
+				#{gradeId,jdbcType=BIGINT},
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				#{totalPrice,jdbcType=VARCHAR},
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				#{content,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.pay.ChargeItem">
+		UPDATE <include refid="TableName" />
+		<set>
+		    <if test="chargeTypeId != null">
+				chargeTypeId = #{chargeTypeId,jdbcType=BIGINT},
+			</if>
+			<if test="gradeId != null">
+				gradeID = #{gradeId,jdbcType=BIGINT},
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				totalPrice = #{totalPrice,jdbcType=VARCHAR},
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content = #{content,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{chargeItemId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

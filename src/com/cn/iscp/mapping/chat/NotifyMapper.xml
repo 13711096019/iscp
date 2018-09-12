@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.chat.NotifyDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 校信通知 -->
+	<resultMap id="Notify" type="com.cn.iscp.entity.chat.Notify">
+		<id column="ID" property="notifyId" jdbcType="BIGINT" />
+		<result column="notifyType" property="notifyType" jdbcType="INTEGER" />
+		<result column="notifyTitle" property="notifyTitle" jdbcType="VARCHAR" />
+		<result column="notifyContent" property="notifyContent" jdbcType="VARCHAR" />
+		<result column="notifyInscribe" property="notifyInscribe" jdbcType="VARCHAR" />
+		<result column="userIds" property="userIds" jdbcType="VARCHAR" />
+		<result column="createUserID" property="createUserId" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="createUserName" property="createUserName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_chat_notify </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.notifyType, A.notifyTitle, A.notifyContent A.notifyInscribe, 
+		A.userIds, A.createUserID, A.createTime, A.status
+	</sql>
+	
+	<!-- 分页获取校信通知信息 -->
+	<select id="findByPage" resultMap="Notify" parameterType="com.cn.iscp.entity.chat.Notify">
+         {
+			call p_chat_notify_findByPage(
+                	#{userKey,jdbcType=VARCHAR,mode=IN}, 
+                	#{pageCount,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增校信通知 -->
+	<select id="insertNotify" resultMap="StateModel" parameterType="com.cn.iscp.entity.chat.Notify">
+         {
+			call p_chat_notify_insert(
+                	#{notifyType,jdbcType=INTEGER,mode=IN}, 
+					#{notifyTitle,jdbcType=VARCHAR,mode=IN}, 
+					#{notifyContent,jdbcType=VARCHAR,mode=IN}, 
+					#{notifyInscribe,jdbcType=VARCHAR,mode=IN}, 
+					#{userIds,jdbcType=VARCHAR,mode=IN}, 
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑校信通知 -->
+	<select id="updateNotify" resultMap="Notify" parameterType="com.cn.iscp.entity.chat.Notify">
+         {
+			call p_chat_notify_update(
+					#{notifyId,jdbcType=BIGINT,mode=IN}, 
+					#{notifyTitle,jdbcType=VARCHAR,mode=IN}, 
+					#{notifyContent,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除校信通知 -->
+	<select id="deleteNotify" resultMap="StateModel" parameterType="com.cn.iscp.entity.chat.Notify">
+         {
+			call p_chat_notify_delete(
+                	#{notifyId,jdbcType=BIGINT,mode=IN}, 
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

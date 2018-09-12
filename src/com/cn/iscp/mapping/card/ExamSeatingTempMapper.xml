@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamSeatingTempDao">
+	
+	<!-- 试卷座位模板表对象 -->
+	<resultMap id="ExamSeatingTemp" type="com.cn.iscp.entity.card.exam.ExamSeatingTemp">
+		<id column="ID" property="tempId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="classNum" property="classNum" jdbcType="BIGINT" />
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="seatingCount" property="seatingCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_examseatingcharttemp </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.schoolYearID, A.gradeID, A.title, A.content, A.status
+	</sql>
+	
+	<!-- PC-获取考试座位表模板列表 -->
+	<select id="findAll" resultMap="ExamSeatingTemp" parameterType="java.lang.Long">
+		{
+			call p_card_examseatingtemp_findAll(
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据编号获取考试座位表模板对象 -->
+	<select id="findById" resultMap="ExamSeatingTemp" parameterType="java.lang.Long">
+		{
+			call p_card_examseatingtemp_findById(
+					#{tempId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据年级编号获取考试座位表模板列表 -->
+	<select id="findByGrade" resultMap="ExamSeatingTemp" parameterType="java.lang.Long">
+		{
+			call p_card_examseatingtemp_findByGrade(
+					#{gradeId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-新增考试座位表模板 -->
+	<select id="insertExamSeatingTemp" resultMap="ExamSeatingTemp" parameterType="com.cn.iscp.entity.card.exam.ExamSeatingTemp">
+		{
+			call p_card_examseatingtemp_insert(
+					#{gradeId,jdbcType=BIGINT,mode=IN}, 
+					#{title,jdbcType=VARCHAR,mode=IN}, 
+					#{content,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-编辑考试座位表模板 -->
+	<select id="updateExamSeatingTemp" resultMap="ExamSeatingTemp" parameterType="com.cn.iscp.entity.card.exam.ExamSeatingTemp">
+		{
+			call p_card_examseatingtemp_update(
+					#{tempId,jdbcType=BIGINT,mode=IN}, 
+					#{title,jdbcType=VARCHAR,mode=IN}, 
+					#{content,jdbcType=VARCHAR,mode=IN}, 
+					#{status,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

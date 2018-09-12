@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeConsutlDao">
+
+	<!-- 收费征询意见 -->
+	<resultMap id="ChargeConsutl" type="com.cn.iscp.entity.pay.ChargeConsutl">
+		<id column="ID" property="consutlId" jdbcType="BIGINT" />
+		<result column="orderID" property="orderId" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="signPic" property="signPic" jdbcType="VARCHAR" />
+		<result column="consultState" property="consultState" jdbcType="INTEGER" />
+		
+		<result column="admissionDate" property="admissionDate" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="prologue" property="prologue" jdbcType="VARCHAR" />
+		<result column="remarks" property="remarks" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_pay_chargeconsult </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.orderID, A.studentID, A.classEntityUpgradeID, A.className, A.studentName, 
+		A.mobile, A.signPic, A.consultState
+	</sql>
+	
+	<!-- 获取收费征询信息 -->
+	<select id="findByStudent" resultMap="ChargeConsutl" parameterType="com.cn.iscp.entity.pay.ChargeConsutl">
+		{
+			call p_pay_chargeconsult_findByStudent(
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{orderId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 提交收费征询信息 -->
+	<select id="updateConsutl" resultMap="ChargeConsutl" parameterType="java.util.Map">
+		{
+			call p_pay_chargeconsult_update(
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{orderId,jdbcType=BIGINT,mode=IN}, 
+					#{mobile,jdbcType=VARCHAR,mode=IN}, 
+					#{admissionDate,jdbcType=VARCHAR,mode=IN}, 
+					#{isBreakfast,jdbcType=INTEGER,mode=IN}, 
+					#{isLunch,jdbcType=INTEGER,mode=IN}, 
+					#{isUniform,jdbcType=INTEGER,mode=IN}, 
+					#{isMessage,jdbcType=INTEGER,mode=IN}, 
+					#{isSchoolBus,jdbcType=INTEGER,mode=IN}, 
+					#{uniformType,jdbcType=INTEGER,mode=IN}, 
+					#{stature,jdbcType=INTEGER,mode=IN}, 
+					#{siteId,jdbcType=BIGINT,mode=IN}, 
+					#{signPic,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendCycleDao">
+	
+	<!-- 周期排班模板 -->
+	<resultMap id="TeacherAttendCycle" type="com.cn.iscp.entity.attend.TeacherAttendCycle">
+		<id column="ID" property="cycleId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="cycleName" property="cycleName" jdbcType="VARCHAR" />
+		<result column="monShiftID" property="monShiftId" jdbcType="BIGINT" />
+		<result column="tueShiftID" property="tueShiftId" jdbcType="BIGINT" />
+		<result column="wedShiftID" property="wedShiftId" jdbcType="BIGINT" />
+		<result column="thurShiftID" property="thurShiftId" jdbcType="BIGINT" />
+		<result column="friShiftID" property="friShiftId" jdbcType="BIGINT" />
+		<result column="satShiftID" property="satShiftId" jdbcType="BIGINT" />
+		<result column="sunShiftID" property="sunShiftId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="monShiftName" property="monShiftName" jdbcType="VARCHAR" />
+		<result column="tueShiftName" property="tueShiftName" jdbcType="VARCHAR" />
+		<result column="wedShiftName" property="wedShiftName" jdbcType="VARCHAR" />
+		<result column="thurShiftName" property="thurShiftName" jdbcType="VARCHAR" />
+		<result column="friShiftName" property="friShiftName" jdbcType="VARCHAR" />
+		<result column="satShiftName" property="satShiftName" jdbcType="VARCHAR" />
+		<result column="sunShiftName" property="sunShiftName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendcycle </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.cycleName, monShiftID, A.tueShiftID, A.wedShiftID, A.thurShiftID, 
+		A.friShiftID, A.satShiftID, A.sunShiftID, A.status
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="TeacherAttendCycle" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE  A.status=1 AND A.ID = #{cycleId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据考勤组获取周期排班模板  -->
+	<select id="findByGroup" resultMap="TeacherAttendCycle" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendcycle_findByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 自动生成模板和排班  -->
+	<select id="isFirstCycle" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendcycle_isFirstCycle(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增周期排班模板  -->
+	<select id="insertCycle" resultMap="TeacherAttendCycle" parameterType="com.cn.iscp.entity.attend.TeacherAttendCycle">
+		{
+			call p_attend_teacherattendcycle_insert(
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{cycleName,jdbcType=VARCHAR,mode=IN}, 
+					#{monShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{tueShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{wedShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{thurShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{friShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{satShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{sunShiftId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑周期排班模板  -->
+	<select id="updateCycle" resultMap="TeacherAttendCycle" parameterType="com.cn.iscp.entity.attend.TeacherAttendCycle">
+		{
+			call p_attend_teacherattendcycle_update(
+					#{cycleId,jdbcType=BIGINT,mode=IN}, 
+					#{cycleName,jdbcType=VARCHAR,mode=IN}, 
+					#{monShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{tueShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{wedShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{thurShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{friShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{satShiftId,jdbcType=BIGINT,mode=IN}, 
+					#{sunShiftId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除周期排班模板  -->
+	<select id="deleteCycle" resultMap="TeacherAttendCycle" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendcycle_delete(
+					#{cycleId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

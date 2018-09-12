@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.HomeworkFeedbackDao">
+	
+	<!-- 家长督导作业对象 -->
+	<resultMap id="HomeworkFeedback" type="com.cn.iscp.entity.card.HomeworkFeedback">
+		<id column="ID" property="feedbackId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="year" property="year" jdbcType="INTEGER" />
+		<result column="termID" property="termId" jdbcType="INTEGER" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="feebackMark" property="feebackMark" jdbcType="INTEGER" />
+		<result column="finishMark" property="finishMark" jdbcType="INTEGER" />
+		<result column="parentName" property="parentName" jdbcType="VARCHAR" />
+		<result column="feebackTime" property="feebackTime" jdbcType="VARCHAR" />
+		<result column="note" property="feebackNote" jdbcType="VARCHAR" />
+		
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="feebackName" property="feebackName" jdbcType="VARCHAR" />
+		<result column="finishName" property="finishName" jdbcType="VARCHAR" />
+		<result column="studentCount" property="studentCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_homeworkfeedback </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.year, A.termID, A.studyDate, A.studentID, A.feebackMark, 
+		A.finishMark, A.parentName, A.feebackTime, A.feebackNote
+	</sql>
+	
+	<!-- 家长端-根据日期获取作业反馈对象  -->
+	<select id="getByDate" resultMap="HomeworkFeedback" parameterType="com.cn.iscp.entity.card.HomeworkFeedback">
+		{
+			call p_card_hormworkfeedback_parentConsult(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-根据日期获取作业反馈列表  -->
+	<select id="findByDate" resultMap="HomeworkFeedback" parameterType="com.cn.iscp.entity.card.HomeworkFeedback">
+		{
+			call p_card_hormworkfeedback_teacherConsult(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{feebackMark,jdbcType=INTEGER,mode=IN}, 
+					#{finishMark,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 家长端-家长反馈  -->
+	<select id="insert" resultMap="HomeworkFeedback" parameterType="com.cn.iscp.entity.card.HomeworkFeedback">
+		{
+			call p_card_hormworkfeedback_parentDo(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{finishMark,jdbcType=INTEGER,mode=IN}, 
+					#{feebackNote,jdbcType=VARCHAR,mode=IN}, 
+					#{parentName,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据布置作业日期获取学生家长反馈信息  -->
+	<select id="findHormworkFeedback" resultMap="HomeworkFeedback" parameterType="com.cn.iscp.entity.card.HomeworkFeedback">
+		{
+			call p_card_findHormworkFeedback(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-作业反馈统计  -->
+	<select id="findConditionCount" resultMap="HomeworkFeedback" parameterType="com.cn.iscp.entity.card.HomeworkFeedback">
+		{
+			call p_card_hormworkfeedback_conditionCount(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

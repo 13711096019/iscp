@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendGroupDao">
+	
+	<!-- 考勤组信息 -->
+	<resultMap id="TeacherAttendGroup" type="com.cn.iscp.entity.attend.TeacherAttendGroup">
+		<id column="ID" property="groupId" jdbcType="BIGINT" />
+		<result column="groupName" property="groupName" jdbcType="VARCHAR" />
+		<result column="principalIds" property="principalIds" jdbcType="VARCHAR" />
+		<result column="createUserID" property="createUserId" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="principalNames" property="principalNames" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendgroup </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupName, A.principalIds, A.createUserID, A.createTime, A.status
+	</sql>
+	
+	<!-- 根据考勤组和用户获取对象  -->
+	<select id="findByPower" resultMap="TeacherAttendGroup" parameterType="com.cn.iscp.entity.attend.TeacherAttendGroup">
+		{
+			call p_attend_teacherattendgroup_findByPower(
+					#{createUserId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据编号获取考勤组信息  -->
+	<select id="findById" resultMap="TeacherAttendGroup" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendgroup_findById(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取最新考勤组信息  -->
+	<select id="findByLast" resultMap="TeacherAttendGroup">
+		{
+			call p_attend_teacherattendgroup_findByLast()
+		}
+	</select>
+	
+	<!-- 新增考勤组  -->
+	<select id="insertGroup" resultMap="TeacherAttendGroup" parameterType="com.cn.iscp.entity.attend.TeacherAttendGroup">
+		{
+			call p_attend_teacherattendgroup_insert(
+					#{groupName,jdbcType=VARCHAR,mode=IN}, 
+					#{principalIds,jdbcType=VARCHAR,mode=IN}, 
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑考勤组  -->
+	<select id="updateGroup" resultMap="TeacherAttendGroup" parameterType="com.cn.iscp.entity.attend.TeacherAttendGroup">
+		{
+			call p_attend_teacherattendgroup_update(
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{groupName,jdbcType=VARCHAR,mode=IN}, 
+					#{principalIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除考勤组  -->
+	<select id="deleteGroup" resultMap="TeacherAttendGroup" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendgroup_delete(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取考勤老师列表  -->
+	<select id="findTeacher" resultType="hashMap" parameterType="java.util.Map">
+		{
+			call p_attend_teacherattendgroup_findTeacher(
+					#{roleId,jdbcType=BIGINT,mode=IN}, 
+					#{teacherName,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

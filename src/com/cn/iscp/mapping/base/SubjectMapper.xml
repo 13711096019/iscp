@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.SubjectDao">
+	
+	<!-- 科目对象 -->
+	<resultMap id="Subject" type="com.cn.iscp.entity.base.Subject">
+		<id column="ID" property="subjectId" jdbcType="BIGINT" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="subjectCount" property="subjectCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_subject </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.subjectName, A.sort, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="Subject" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0 AND (A.subjectName LIKE '${statName}' 
+					OR A.note LIKE '${statName}')
+			ORDER BY A.flagtime DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0 AND (A.subjectName LIKE '${statName}' 
+					OR A.note LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Subject" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{subjectId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Subject">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 获取所有科目 -->
+	<select id="findAll" resultMap="Subject">
+		SELECT s.ID,s.subjectName
+			FROM t_base_subject AS s
+			WHERE `status` > 0
+			ORDER BY sort ASC
+	</select>
+	
+	<!-- 获取正科科目 -->
+	<select id="findByExem" resultMap="Subject">
+		SELECT s.ID,s.subjectName 
+			FROM t_base_subject AS s 
+			WHERE s.`status` > 0 AND s.exemState = 1 
+			ORDER BY s.sort ASC
+	</select>
+	
+	<!-- 根据年级获取科目 -->
+	<select id="findByGrade" resultMap="Subject" parameterType="java.lang.Long">
+		SELECT s.ID,s.subjectName,
+				(SELECT COUNT(ID) FROM t_base_gradesubject 
+						WHERE subjectID=s.ID AND gradeID = #{gradeId,jdbcType=BIGINT}) AS subjectCount 
+			FROM t_base_subject AS s
+			WHERE `status` > 0
+			ORDER BY sort ASC
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Subject">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="subjectName != null &amp;&amp; subjectName != ''">
+				subjectName,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="subjectName != null &amp;&amp; subjectName != ''">
+				#{subjectName,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Subject">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="subjectName != null &amp;&amp; subjectName != ''">
+				subjectName = #{subjectName,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{subjectId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 工作-根据老师与年级编号获取任课科目列表  -->
+	<select id="findSubjectByTeacher" resultMap="Subject" parameterType="java.util.Map">
+		{
+			call p_base_findSubjectByTeacher(
+					#{gradeId,jdbcType=BIGINT,mode=IN}, 
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{isTotal,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

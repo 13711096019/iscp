@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.OndutyExampleDao">
+	
+	<!-- 值日栏目对象 -->
+	<resultMap id="OndutyExample" type="com.cn.iscp.entity.card.OndutyExample">
+		<id column="ID" property="exampleId" jdbcType="BIGINT" />
+		<id column="ondutyID" property="ondutyId" jdbcType="BIGINT" />
+		<result column="week" property="week" jdbcType="INTEGER" />
+		<result column="studentIds" property="studentIds" jdbcType="VARCHAR" />
+		<result column="studentNames" property="studentNames" jdbcType="VARCHAR" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_ondutyexample </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.ondutyID, A.week, A.studentIds, A.studentNames, A.studyDate
+	</sql>
+	<!-- 工作-修改备课明细 -->
+	<select id="updateexample" resultMap="OndutyExample" parameterType="com.cn.iscp.entity.card.OndutyExample">
+		{
+			call p_card_ondutyexample_handle(
+					#{ondutyId,jdbcType=BIGINT,mode=IN}, 
+					#{studentIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+</mapper>

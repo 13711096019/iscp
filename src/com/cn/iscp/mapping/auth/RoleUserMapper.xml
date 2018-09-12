@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.auth.RoleUserDao">
+	
+	<!-- 用户角色关系对象 -->
+	<resultMap id="RoleUser" type="com.cn.iscp.entity.auth.RoleUser">
+		<id column="ID" property="nexusId" jdbcType="BIGINT" />
+		<result column="roleID" property="roleId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="roleDataAuth" property="roleDataAuth" jdbcType="VARCHAR" />
+		
+		<result column="roleName" property="roleName" jdbcType="VARCHAR" />
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_auth_roleuser </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.roleID, A.userID, A.note, A.roleDataAuth
+	</sql>
+	
+	<!-- 工作-根据用户获取角色列表  -->
+	<select id="findByUser" resultMap="RoleUser" parameterType="java.lang.Long">
+		SELECT ru.*,r.roleName
+			FROM t_auth_roleuser AS ru
+					LEFT JOIN t_auth_rolemgr AS r ON r.ID=ru.roleID
+			WHERE ru.userID = #{userId,jdbcType=BIGINT,mode=IN} 
+			ORDER BY r.roleRank ASC
+	</select>
+	
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.DailyStatisticsDetailDao">
+	
+	<!-- 出勤报表明细表 -->
+	<resultMap id="DailyStatisticsDetail" type="com.cn.iscp.entity.attend.DailyStatisticsDetail">
+		<id column="ID" property="detailId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="timeType" property="timeType" jdbcType="INTEGER" />
+		<result column="isRecess" property="isRecess" jdbcType="INTEGER" />
+		<result column="isApplicant" property="isApplicant" jdbcType="INTEGER" />
+		<result column="isAttendees" property="isAttendees" jdbcType="INTEGER" />
+		<result column="isAbsentees" property="isAbsentees" jdbcType="INTEGER" />
+		<result column="isLeave" property="isLeave" jdbcType="INTEGER" />
+		
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+		<result column="userType" property="userType" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_dailystatisticsdetail </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.userID, A.attendDate, A.timeType, A.isRecess, A.isApplicant, 
+		A.isAttendees, A.isAbsentees, A.isLeave
+	</sql>
+	
+	<!-- 获取考勤报表明细  -->
+	<select id="findByDate" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.DailyStatisticsDetail">
+		{
+			call p_attend_dailystatisticsdetail_findByDate(
+					#{attendDate,jdbcType=VARCHAR,mode=IN}, 
+					#{timeType,jdbcType=INTEGER,mode=IN}, 
+					#{userType,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

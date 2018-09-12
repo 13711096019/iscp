@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.ClockOndayStudentDao">
+
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+	   	<result column="statusCode" property="statusCode" jdbcType="INTEGER"/>
+	   	<result column="statusHint" property="statusHint" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- 学生每日考勤统计对象 -->
+	<resultMap id="ClockOndayStudent" type="com.cn.iscp.entity.card.ClockOndayStudent">
+		<id column="ID" property="clockId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="clockOnDate" property="clockOnDate" jdbcType="VARCHAR" />
+		<result column="clockLocationID" property="clockLocationId" jdbcType="INTEGER" />
+		<result column="sessionID" property="sessionId" jdbcType="BIGINT" />
+		<result column="clockSort" property="clockSort" jdbcType="INTEGER" />
+		<result column="clockOnArrivalTime" property="clockOnArrivalTime" jdbcType="VARCHAR" />
+		<result column="clockOnStatus" property="clockOnStatus" jdbcType="INTEGER" />
+		<result column="judgeStatus" property="judgeStatus" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="judgeStatusName" property="judgeStatusName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_clockonday_student </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.schoolYearID, A.termID, A.month, A.classEntityUpgradeID, A.studentID, 
+		A.clockOnDate, A.clockLocationID, A.sessionID, A.clockSort, A.clockOnArrivalTime, 
+		A.clockOnStatus, A.judgeStatus, A.status, A.note
+	</sql>
+	
+	<!-- 终端-学生打卡 -->
+	<select id="insertClockOnDay" resultMap="StateModel" parameterType="com.cn.iscp.entity.card.ClockOndayStudent">
+		{
+			call p_card_clockonday_student_insert(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{studentCardPhy,jdbcType=VARCHAR,mode=IN},
+					#{clockLocationId,jdbcType=INTEGER,mode=IN},
+					#{clockOnDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据考勤状态获取学生信息 -->
+	<select id="findByDate" resultMap="ClockOndayStudent" parameterType="com.cn.iscp.entity.card.ClockOndayStudent">
+		{
+			call p_card_clockonday_student_findByDate(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{clockOnDate,jdbcType=VARCHAR,mode=IN},
+					#{judgeStatus,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-特殊情况录入(忘打卡6,旷课4,早退5) -->
+	<select id="handleClockOnDay" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.card.ClockOndayStudent">
+		{
+			call p_card_clockonday_student_handle(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{studentId,jdbcType=BIGINT,mode=IN},
+					#{clockOnDate,jdbcType=VARCHAR,mode=IN},
+					#{clockOnStatus,jdbcType=INTEGER,mode=IN},
+					#{note,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.OndutyColumnDao">
+	
+	<!-- 值日栏目对象 -->
+	<resultMap id="OndutyColumn" type="com.cn.iscp.entity.card.OndutyColumn">
+		<id column="ID" property="columnId" jdbcType="BIGINT" />
+		<result column="columnName" property="columnName" jdbcType="VARCHAR" />
+		<result column="columnAsk" property="columnAsk" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_ondutycolumn </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.columnName, A.columnAsk, A.sort, A.status
+	</sql>
+	
+	 <!-- PC-根据编号获取对象 -->
+	<select id="findById" resultMap="OndutyColumn" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{columnId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 终端-获取所有栏目信息 -->
+	<select id="findAll" resultMap="OndutyColumn">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE `status` = 1 
+			ORDER BY sort ASC
+	</select>
+	
+		<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="OndutyColumn" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE  (A.columnName LIKE '${statName}')
+			ORDER BY A.sort 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE (A.columnName LIKE '${statName}')
+	</select>
+	
+	<!-- PC-修改对象-->
+	<update id="update" parameterType="com.cn.iscp.entity.task.Plan">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="columnName != null &amp;&amp; columnName != ''">
+				columnName = #{columnName,jdbcType=VARCHAR},
+			</if>
+			<if test="columnAsk != null &amp;&amp; columnAsk != ''">
+				columnAsk = #{columnAsk,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				`status` = #{status,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{columnId,jdbcType=BIGINT}
+	</update>
+</mapper>

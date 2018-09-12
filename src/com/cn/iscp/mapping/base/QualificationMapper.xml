@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.QualificationDao">
+	
+	<!-- 老师资质证对象 -->
+	<resultMap id="Qualification" type="com.cn.iscp.entity.base.Qualification">
+		<id column="ID" property="tqId" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="centificate" property="centificate" jdbcType="VARCHAR" />
+		<result column="termOfValidity" property="termOfValidity" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="isExpire" property="isExpire" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_teacherqualification </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.teacherID, A.centificate, A.TermOfValidity, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 根据教员编号获取对象 -->
+	<select id="getQualification" resultMap="Qualification" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,t.teacherName,
+				(CASE WHEN A.TermOfValidity &lt; NOW() THEN 1 ELSE 0 END) AS isExpire
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_base_teacher AS t ON t.ID=A.teacherID
+			WHERE A.`status`=1 AND A.teacherID = #{teacherId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Qualification">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="teacherId != null">
+				teacherID,
+			</if>
+			<if test="centificate != null &amp;&amp; centificate != ''">
+				centificate,
+			</if>
+			<if test="termOfValidity != null &amp;&amp; termOfValidity != ''">
+				termOfValidity,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="teacherId != null">
+				#{teacherId,jdbcType=BIGINT},
+			</if>
+			<if test="centificate != null &amp;&amp; centificate != ''">
+				#{centificate,jdbcType=VARCHAR},
+			</if>
+			<if test="termOfValidity != null &amp;&amp; termOfValidity != ''">
+				#{termOfValidity,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Qualification">
+		UPDATE t_base_teacherqualification 
+			SET `status`=#{status,jdbcType=INTEGER}, flagtime=#{flagtime,jdbcType=BIGINT} 
+			WHERE teacherID = #{teacherId,jdbcType=BIGINT};
+	</update>
+	
+</mapper>

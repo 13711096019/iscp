@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.ClassMgrDao">
+	
+	<!-- 班别对象 -->
+	<resultMap id="ClassMgr" type="com.cn.iscp.entity.dbase.ClassMgr">
+		<id column="ID" property="classMgrId" jdbcType="BIGINT" />
+		<result column="machineName" property="machineName" jdbcType="VARCHAR" />
+		<result column="machineCode" property="machineCode" jdbcType="VARCHAR" />
+		<result column="machinePwd" property="machinePwd" jdbcType="VARCHAR" />
+		<result column="safePwd" property="safePwd" jdbcType="VARCHAR" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="classEntityID" property="classEntityId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_dbase_classmgr </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.machineName, A.machineCode, A.machinePwd, A.safePwd, 
+		A.classEntityUpgradeID, A.classEntityID, A.status
+	</sql>
+	
+	<!-- 验证登录AND A.status &gt; 0 -->
+	<select id="login" resultMap="ClassMgr" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		SELECT A.machineCode, A.classEntityUpgradeID 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.machineCode = #{machineCode,jdbcType=VARCHAR} 
+				AND A.machinePwd = #{machinePwd,jdbcType=VARCHAR} 
+	</select>
+	
+	<!-- 验证安全密码AND A.status &gt; 0 -->
+	<select id="verifySafePwd" resultMap="ClassMgr" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		SELECT A.machineCode, A.classEntityUpgradeID 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.machineCode = #{machineCode,jdbcType=VARCHAR} 
+				AND A.safePwd = #{safePwd,jdbcType=VARCHAR} 
+	</select>
+	
+	<!-- 根据动态班级编号获取对象 -->
+	<select id="getByClassNum" resultMap="ClassMgr" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		SELECT A.machineCode, A.classEntityUpgradeID 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+				AND A.status &gt; 0
+	</select>
+	
+	<!-- 获取所有 -->
+	<select id="findAll" resultMap="ClassMgr">
+		SELECT <include refid="ColumnList" />,c.className
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_dbase_classentityupgrade AS cu ON cu.ID=A.classEntityUpgradeID
+				LEFT JOIN t_base_class AS c ON c.ID=cu.classID
+			WHERE A.status > 0 AND c.status > 0
+			ORDER BY cu.gradeID ASC, cu.classID ASC
+	</select>
+	
+	<!-- 根据动态班级编号获取对象 -->
+	<select id="findById" resultMap="ClassMgr" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID = #{classMgrId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="machineName != null &amp;&amp; machineName != ''">
+				machineName,
+			</if>
+			<if test="machineCode != null &amp;&amp; machineCode != ''">
+				machineCode,
+			</if>
+			<if test="machinePwd != null &amp;&amp; machinePwd != ''">
+				machinePwd,
+			</if>
+			<if test="safePwd != null &amp;&amp; safePwd != ''">
+				safePwd,
+			</if>
+			<if test="classNum != null">
+				classEntityUpgradeID,
+			</if>
+			<if test="classEntityId != null">
+				classEntityID,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="machineName != null &amp;&amp; machineName != ''">
+				#{machineName,jdbcType=VARCHAR},
+			</if>
+			<if test="machineCode != null &amp;&amp; machineCode != ''">
+				#{machineCode,jdbcType=VARCHAR},
+			</if>
+			<if test="machinePwd != null &amp;&amp; machinePwd != ''">
+				#{machinePwd,jdbcType=VARCHAR},
+			</if>
+			<if test="safePwd != null &amp;&amp; safePwd != ''">
+				#{safePwd,jdbcType=VARCHAR},
+			</if>
+			<if test="classNum != null">
+				#{classNum,jdbcType=BIGINT},
+			</if>
+			<if test="classEntityId != null">
+				#{classEntityId,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改名称 -->
+	<update id="updateName" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		UPDATE t_dbase_classmgr
+			SET machineName = #{machineName,jdbcType=VARCHAR}
+			WHERE ID = #{classMgrId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 修改登录密码 -->
+	<update id="updateMachinePwd" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		UPDATE t_dbase_classmgr
+			SET machinePwd = #{machinePwd,jdbcType=VARCHAR}
+			WHERE ID = #{classMgrId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 修改安全密码 -->
+	<update id="updateSafePwd" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		UPDATE t_dbase_classmgr
+			SET safePwd = #{safePwd,jdbcType=VARCHAR}
+			WHERE ID = #{classMgrId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 绑定班级  -->
+	<select id="updateClassNum" parameterType="com.cn.iscp.entity.dbase.ClassMgr">
+		{
+			call p_dbase_editClassMgr(
+					#{classMgrId,jdbcType=BIGINT,mode=IN}, 
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

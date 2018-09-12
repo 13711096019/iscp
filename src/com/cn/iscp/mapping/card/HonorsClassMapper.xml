@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.honors.HonorsClassDao">
+	
+	<!-- 班级荣誉对象 -->
+	<resultMap id="HonorsClass" type="com.cn.iscp.entity.card.honors.HonorsClass">
+		<id column="ID" property="chId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="week" property="weekNum" jdbcType="INTEGER" />
+		<result column="honorsSort" property="honorsSort" jdbcType="INTEGER" />
+		<result column="honorsID" property="honorsId" jdbcType="BIGINT" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="honorsName" property="honorsName" jdbcType="VARCHAR" />
+		<result column="honorsUrl" property="honorsUrl" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="stage" property="stage" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_classhonors </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.schoolYearID, A.termID, A.month, A.week, A.honorsID, A.studyDate, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- PC-获取上个月文明班列表  -->
+	<select id="findCivilizationClass" resultMap="HonorsClass">
+		{
+			call p_card_classhonors_findCivilizationClass()
+		}
+	</select>
+	
+	<!-- 终端-判断上一周是否为文明班 -->
+	<select id="judgeIsCivilizedClass" resultMap="HonorsClass" parameterType="java.lang.Long">
+		{
+			call p_card_classhonors_judgeIsCivilizedClass(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 统计-获取文明班获奖次数最多的10个班级 -->
+	<select id="findCivilizedClassCensus" resultType="hashMap">
+		{
+			call p_card_createcivilization_censusCount()
+		}
+	</select>
+	
+</mapper>

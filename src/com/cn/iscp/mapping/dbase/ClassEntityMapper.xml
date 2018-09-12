@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.ClassEntityDao">
+	
+	<!-- 班主体对象 -->
+	<resultMap id="ClassEntity" type="com.cn.iscp.entity.dbase.ClassEntity">
+		<id column="ID" property="classEntityId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="classID" property="classId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="defaultVideo" property="defaultVideo" jdbcType="BIGINT" />
+		<result column="smallGroupCount" property="smallGroupCount" jdbcType="INTEGER" />
+		<result column="bigGroupGount" property="bigGroupGount" jdbcType="INTEGER" />
+		<result column="seatRowCount" property="seatRowCount" jdbcType="INTEGER" />
+		<result column="seatColCount" property="seatColCount" jdbcType="INTEGER" />
+		<result column="upgradeCount" property="upgradeCount" jdbcType="INTEGER" />
+		<result column="isFinishSchool" property="isFinishSchool" jdbcType="INTEGER" />
+		<result column="finishYear" property="finishYear" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="isVirtual" property="isVirtual" jdbcType="INTEGER" />
+		<result column="studentCount" property="studentCount" jdbcType="INTEGER" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 班主体动态年级对象 -->
+	<resultMap id="ClassEntityUpgrade" type="com.cn.iscp.entity.dbase.ClassEntityUpgrade">
+		<id column="ID" property="classNum" jdbcType="BIGINT" />
+		<result column="classEntityID" property="classEntityId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="classID" property="classId" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="totalCount" property="totalCount" jdbcType="INTEGER" />
+		<result column="maleCount" property="maleCount" jdbcType="INTEGER" />
+		<result column="femaleCount" property="femaleCount" jdbcType="INTEGER" />
+		<result column="smallGroupCount" property="smallGroupCount" jdbcType="INTEGER" />
+		<result column="bigGroupGount" property="bigGroupGount" jdbcType="INTEGER" />
+		<result column="seatRowCount" property="seatRowCount" jdbcType="INTEGER" />
+		<result column="seatColCount" property="seatColCount" jdbcType="INTEGER" />
+		<result column="isUpdating" property="isUpdating" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="termName" property="termName" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="teacherMobile" property="teacherMobile" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	<!-- 根据用户获取班级信息列表  -->
+	<select id="findClass" resultMap="ClassEntity" parameterType="java.lang.Long">
+		{
+			call p_dbase_findClass(
+				#{loginUserId,jdbcType=BIGINT}
+			)
+		}
+	</select>
+	
+	<!-- 根据编号(动态班级编号/实体班级编号)获取实体班级信息  -->
+	<select id="getClassEntityByKeyId" resultMap="ClassEntity" parameterType="com.cn.iscp.entity.dbase.ClassEntityUpgrade">
+		{
+			call p_dbase_classentity_getByKeyId(
+				#{classNum,jdbcType=BIGINT},
+				#{classEntityId,jdbcType=BIGINT}
+			)
+		}
+	</select>
+	
+	<!-- 根据编号(动态班级编号/实体班级编号)获取动态班级信息  -->
+	<select id="getClassEntityUpgradeByKeyId" resultMap="ClassEntityUpgrade" parameterType="com.cn.iscp.entity.dbase.ClassEntityUpgrade">
+		{
+			call p_dbase_classentityupgrade_getByKeyId(
+				#{classNum,jdbcType=BIGINT},
+				#{classEntityId,jdbcType=BIGINT}
+			)
+		}
+	</select>
+	
+	<!-- 根据年级获取班级列表 -->
+	<select id="findByGrade" resultMap="ClassEntity" parameterType="java.lang.Long">
+		{
+			call p_dbase_classentity_findByGrade(
+					#{gradeId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-修改班级小组数量  -->
+	<select id="updSmallGroupCount" statementType="CALLABLE" resultType="java.lang.Integer" 
+				parameterType="com.cn.iscp.entity.dbase.ClassEntity">
+		{
+			call p_dbase_editSmallGroupCount(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{smallGroupCount,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 处理教室位置 -->
+	<update id="handleClassRoom" parameterType="com.cn.iscp.entity.dbase.ClassEntity">
+		{
+			call p_dbase_handleClassRoom(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{classRoomId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</update>
+	
+	<!-- 根据动态班级编号获取该班级阶段的所有班级 -->
+	<select id="findClassList" resultMap="ClassEntity" parameterType="java.lang.Long">
+		{
+			call p_card_createcivilization_getClassList(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 判断老师是否为班主任 -->
+	<select id="findByTeacher" resultMap="ClassEntity" parameterType="java.lang.Long">
+		SELECT * FROM t_dbase_classentity WHERE teacherID = #{teacherId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 修改班级默认视频 -->
+	<update id="updDefaultVideo" parameterType="com.cn.iscp.entity.dbase.ClassEntity">
+		UPDATE t_dbase_classentity 
+			SET defaultVideo = #{defaultVideo,jdbcType=INTEGER}
+			WHERE teacherID = #{teacherId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

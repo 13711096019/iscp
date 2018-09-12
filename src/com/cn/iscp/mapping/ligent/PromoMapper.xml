@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.PromoDao">
+	
+	<!-- 宣传图片对象 -->
+	<resultMap id="Promo" type="com.cn.iscp.entity.ligent.Promo">
+		<result column="ID" property="promoId" jdbcType="BIGINT" />
+		<result column="promoType" property="promoType" jdbcType="INTEGER" />
+		<result column="promoUrl" property="promoUrl" jdbcType="VARCHAR" />
+		<result column="promoSort" property="promoSort" jdbcType="INTEGER" />
+		<result column="createUserID" property="createUserId" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 根据类型获取宣传图片-->
+	<select id="findByType" resultMap="Promo" parameterType="java.lang.Integer">
+		{
+			call p_ligent_promo_findByType(
+					#{promoType,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增宣传图片-->
+	<select id="insertPromo" resultMap="Promo" parameterType="com.cn.iscp.entity.ligent.Promo">
+		{
+			call p_ligent_promo_insert(
+					#{promoId,jdbcType=BIGINT,mode=IN}, 
+					#{promoUrl,jdbcType=VARCHAR,mode=IN}, 
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

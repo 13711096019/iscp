@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.SchoolDao">
+	
+	<!-- 学校对象 -->
+	<resultMap id="School" type="com.cn.iscp.entity.base.School">
+		<id column="ID" property="schoolId" jdbcType="BIGINT" />
+		<result column="schoolName" property="schoolName" jdbcType="VARCHAR" />
+		<result column="schoolAddress" property="schoolAddress" jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="county" property="county" jdbcType="VARCHAR" />
+		<result column="schoolTel" property="schoolTel" jdbcType="VARCHAR" />
+		<result column="schoolFax" property="schoolFax" jdbcType="VARCHAR" />
+		<result column="postCode" property="postCode" jdbcType="VARCHAR" />
+		<result column="contactMan" property="contactMan" jdbcType="VARCHAR" />
+		<result column="contactMobile" property="contactMobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="Businesslicense" property="businessLicense" jdbcType="VARCHAR" />
+		<result column="rechargeMan" property="rechargeMan" jdbcType="VARCHAR" /> 
+		<result column="rechargeMobile" property="rechargeMobile" jdbcType="VARCHAR" />
+		<result column="isPublic" property="isPublic" jdbcType="INTEGER" />
+		<result column="schoolSection" property="schoolSection" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_school </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.schoolName, A.schoolAddress, A.province, A.city, A.county, A.schoolTel, A.schoolFax, 
+		A.postCode, A.contactMan, A.contactMobile, A.email, A.Businesslicense, A.rechargeMan,
+		A.rechargeMobile, A.isPublic, A.schoolSection, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="School" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+				 AND (A.schoolName LIKE '${statName}' OR schoolTel LIKE '${statName}'
+				 	 OR schoolSection LIKE '${statName}' OR schoolAddress LIKE '${statName}'
+				 	 OR schoolFax LIKE '${statName}')
+			ORDER BY A.flagtime DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+				 AND (A.schoolName LIKE '${statName}' OR schoolTel LIKE '${statName}'
+				 	 OR schoolSection LIKE '${statName}' OR schoolAddress LIKE '${statName}'
+				 	 OR schoolFax LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="School" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{schoolId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.School">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="schoolName != null &amp;&amp; schoolName != ''">
+				schoolName,
+			</if>
+			<if test="schoolAddress != null &amp;&amp; schoolAddress != ''">
+				schoolAddress,
+			</if>
+			<if test="province != null &amp;&amp; province != ''">
+				province,
+			</if>
+			<if test="city != null &amp;&amp; city != ''">
+				city,
+			</if>
+			<if test="county != null &amp;&amp; county != ''">
+				county,
+			</if>
+			<if test="schoolTel != null &amp;&amp; schoolTel != ''">
+				schoolTel,
+			</if>
+			<if test="schoolFax != null &amp;&amp; schoolFax != ''">
+				schoolFax,
+			</if>
+			<if test="postCode != null &amp;&amp; postCode != ''">
+				postCode,
+			</if>
+			<if test="contactMan != null &amp;&amp; contactMan != ''">
+				contactMan,
+			</if>
+			<if test="contactMobile != null &amp;&amp; contactMobile != ''">
+				contactMobile,
+			</if>
+			<if test="email != null &amp;&amp; email != ''">
+				email,
+			</if>
+			<if test="businessLicense != null &amp;&amp; businessLicense != ''">
+				Businesslicense,
+			</if>
+			<if test="rechargeMan != null &amp;&amp; rechargeMan != ''">
+				rechargeMan,
+			</if>
+			<if test="rechargeMobile != null &amp;&amp; rechargeMobile != ''">
+				rechargeMobile,
+			</if>
+			<if test="isPublic != null">
+				isPublic,
+			</if>
+			<if test="schoolSection != null &amp;&amp; schoolSection != ''">
+				schoolSection,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="schoolName != null &amp;&amp; schoolName != ''">
+				#{schoolName,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolAddress != null &amp;&amp; schoolAddress != ''">
+				#{schoolAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null &amp;&amp; province != ''">
+				#{province,jdbcType=VARCHAR},
+			</if>
+			<if test="city != null &amp;&amp; city != ''">
+				#{city,jdbcType=VARCHAR},
+			</if>
+			<if test="county != null &amp;&amp; county != ''">
+				#{county,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolTel != null &amp;&amp; schoolTel != ''">
+				#{schoolTel,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolFax != null &amp;&amp; schoolFax != ''">
+				#{schoolFax,jdbcType=VARCHAR},
+			</if>
+			<if test="postCode != null &amp;&amp; postCode != ''">
+				#{postCode,jdbcType=VARCHAR},
+			</if>
+			<if test="contactMan != null &amp;&amp; contactMan != ''">
+				#{contactMan,jdbcType=VARCHAR},
+			</if>
+			<if test="contactMobile != null &amp;&amp; contactMobile != ''">
+				#{contactMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null &amp;&amp; email != ''">
+				#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="businessLicense != null &amp;&amp; businessLicense != ''">
+				#{businessLicense,jdbcType=VARCHAR},
+			</if>
+			<if test="rechargeMan != null &amp;&amp; rechargeMan != ''">
+				#{rechargeMan,jdbcType=VARCHAR},
+			</if>
+			<if test="rechargeMobile != null &amp;&amp; rechargeMobile != ''">
+				#{rechargeMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="isPublic != null">
+				#{isPublic,jdbcType=INTEGER},
+			</if>
+			<if test="schoolSection != null &amp;&amp; schoolSection != ''">
+				#{schoolSection,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.School">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="schoolName != null &amp;&amp; schoolName != ''">
+				schoolName = #{schoolName,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolAddress != null &amp;&amp; schoolAddress != ''">
+				schoolAddress = #{schoolAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null &amp;&amp; province != ''">
+				province = #{province,jdbcType=VARCHAR},
+			</if>
+			<if test="city != null &amp;&amp; city != ''">
+				city = #{city,jdbcType=VARCHAR},
+			</if>
+			<if test="county != null &amp;&amp; county != ''">
+				county = #{county,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolTel != null &amp;&amp; schoolTel != ''">
+				schoolTel = #{schoolTel,jdbcType=VARCHAR},
+			</if>
+			<if test="schoolFax != null &amp;&amp; schoolFax != ''">
+				schoolFax = #{schoolFax,jdbcType=VARCHAR},
+			</if>
+			<if test="postCode != null &amp;&amp; postCode != ''">
+				postCode = #{postCode,jdbcType=VARCHAR},
+			</if>
+			<if test="contactMan != null &amp;&amp; contactMan != ''">
+				contactMan = #{contactMan,jdbcType=VARCHAR},
+			</if>
+			<if test="contactMobile != null &amp;&amp; contactMobile != ''">
+				contactMobile = #{contactMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null &amp;&amp; email != ''">
+				email = #{email,jdbcType=VARCHAR},
+			</if>
+			<if test="businessLicense != null &amp;&amp; businessLicense != ''">
+				BusinessLicense = #{businessLicense,jdbcType=VARCHAR},
+			</if>
+			<if test="rechargeMan != null &amp;&amp; rechargeMan != ''">
+				rechargeMan = #{rechargeMan,jdbcType=VARCHAR},
+			</if>
+			<if test="rechargeMobile != null &amp;&amp; rechargeMobile != ''">
+				rechargeMobile = #{rechargeMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="isPublic != null">
+				isPublic = #{isPublic,jdbcType=INTEGER},
+			</if>
+			<if test="schoolSection != null &amp;&amp; schoolSection != ''">
+				schoolSection = #{schoolSection,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{schoolId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

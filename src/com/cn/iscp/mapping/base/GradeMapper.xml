@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.GradeDao">
+
+	<!-- 年级对象 -->
+	<resultMap id="Grade" type="com.cn.iscp.entity.base.Grade">
+		<id column="ID" property="gradeId" jdbcType="BIGINT" />
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="gradeSection" property="gradeSection" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_grade </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.gradeName, A.gradeSection, A.sort, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Grade" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{gradeId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Grade">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 按条件获取信息列表 -->
+	<select id="findAll" resultMap="Grade">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+			ORDER BY A.sort ASC 
+	</select>
+	
+	<!-- 根据年级段位获取信息列表 -->
+	<select id="findBySection" resultMap="Grade" parameterType="java.lang.String">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0 AND gradeSection = #{gradeSection,jdbcType=VARCHAR}
+			ORDER BY A.sort ASC 
+	</select>
+	
+	<!-- 根据学校获取年级 -->
+	<!-- <select id="findBySchool" resultMap="Grade" parameterType="java.lang.Long">
+		SELECT g.ID,g.gradeName 
+			FROM t_base_grade AS g 
+			WHERE FIND_IN_SET(gradeSection,
+					(SELECT schoolSection FROM t_base_school WHERE ID = #{schoolId,jdbcType=BIGINT})) 
+			ORDER BY g.sort ASC;
+	</select> -->
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Grade">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="gradeName != null &amp;&amp; gradeName != ''">
+				gradeName,
+			</if>
+			<if test="gradeSection != null &amp;&amp; gradeSection != ''">
+				gradeSection,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="gradeName != null &amp;&amp; gradeName != ''">
+				#{gradeName,jdbcType=VARCHAR},
+			</if>
+			<if test="gradeSection != null &amp;&amp; gradeSection != ''">
+				#{gradeSection,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Grade">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="gradeName != null &amp;&amp; gradeName != ''">
+				gradeName = #{gradeName,jdbcType=VARCHAR},
+			</if>
+			<if test="gradeSection != null &amp;&amp; gradeSection != ''">
+				gradeSection = #{gradeSection,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{gradeId,jdbcType=BIGINT}
+	</update>
+	
+	
+	<!-- 年级科目关系更新 -->
+	<select id="handleGradeSubject" statementType="CALLABLE" parameterType="java.util.Map">
+		{
+			call p_base_handleGradeSubject(#{gradeId,jdbcType=BIGINT,mode=IN},
+					#{subjectIds,jdbcType=VARCHAR,mode=IN},
+					#{flagtime,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 工作-根据老师获取任课年级列表  -->
+	<select id="findGradeByTeacher" resultMap="Grade" parameterType="java.util.Map">
+		{
+			call p_base_findGradeByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{isTotal,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.SmsDao">
+	
+	<resultMap id="ligentSms" type="com.cn.iscp.entity.ligent.Sms">
+		<id column="ID" property="smsId" jdbcType="BIGINT" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="userType" property="userType" jdbcType="INTEGER" />
+		<result column="msgId" property="msgId" jdbcType="VARCHAR" />
+		<result column="tempId" property="tempId" jdbcType="INTEGER" />
+		<result column="sendCode" property="sendCode" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="createUserID" property="createUserId" jdbcType="BIGINT" />
+		<result column="sendTime" property="sendTime" jdbcType="VARCHAR" />
+		<result column="isUse" property="isUse" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_ligent_sms </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.phone, A.userType, A.msgId, A.sendCode, A.content, A.createUserID, A.sendTime, A.isUse
+	</sql>
+	
+	<!-- 根据手机号获取最近短信信息 -->
+	<select id="findByMobile" resultMap="ligentSms" parameterType="java.lang.String">
+		{
+			call p_ligent_sms_findByMobile(
+					#{mobile,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增短信信息 -->
+	<select id="insertSms" resultMap="ligentSms" parameterType="com.cn.iscp.entity.ligent.Sms">
+		{
+			call p_ligent_sms_insert(
+					#{phone,jdbcType=VARCHAR,mode=IN},
+					#{userType,jdbcType=INTEGER,mode=IN},
+					#{msgId,jdbcType=VARCHAR,mode=IN},
+					#{tempId,jdbcType=INTEGER,mode=IN},
+					#{sendCode,jdbcType=VARCHAR,mode=IN},
+					#{content,jdbcType=VARCHAR,mode=IN},
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

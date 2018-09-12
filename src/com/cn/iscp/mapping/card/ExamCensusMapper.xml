@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamCensusDao">
+	
+	<!-- 班级测验成绩统计对象 -->
+	<resultMap id="ExamCensusClass" type="com.cn.iscp.entity.card.exam.ExamCensusClass">
+		<id column="ID" property="censusId" jdbcType="BIGINT" />
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="examPaperID" property="examPaperId" jdbcType="BIGINT" />
+		<!-- <result column="examID" property="examId" jdbcType="BIGINT" /> -->
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="totalCount" property="totalCount" jdbcType="INTEGER" />
+		<result column="examCount" property="examCount" jdbcType="INTEGER" />
+		<result column="totalScore" property="totalScore" jdbcType="DOUBLE" />
+		<result column="lowestScore" property="lowestScore" jdbcType="DOUBLE" />
+		<result column="highestScore" property="highestScore" jdbcType="DOUBLE" />
+		<result column="averageScore" property="averageScore" jdbcType="DOUBLE" />
+		<result column="ScoreCount100" property="fullScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount90_99" property="goodScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount80_89" property="excelScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount60_79" property="fineScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount60_100" property="passScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount0_59" property="badScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreRate100" property="fullScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate90_99" property="goodScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate80_89" property="excelScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate60_79" property="fineScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate60_100" property="passScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate0_59" property="badScoreRate" jdbcType="DOUBLE" />
+		<result column="censusTime" property="censusTime" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="avgScoreSort" property="avgScoreSort" jdbcType="INTEGER" />
+		
+		<result column="examName" property="examName" jdbcType="VARCHAR" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="TableNameClass"> t_card_examresultstatistic_class </sql>
+	<sql id="ColumnListClass">
+		A.ID, A.examInfoID, A.examPaperID, 
+		A.schoolYearID, A.month, A.gradeID, A.classEntityUpgradeID, 
+		A.totalCount, A.examCount, A.lowestScore, A.highestScore, A.averageScore, 
+		A.ScoreCount100, A.ScoreCount90_99, A.ScoreCount80_89, A.ScoreCount60_79, A.ScoreCount60_100, A.ScoreCount0_59, 
+		A.ScoreRate100, A.ScoreRate90_99, A.ScoreRate80_89, A.ScoreRate60_79, A.ScoreRate60_100, A.ScoreRate0_59, 
+		A.censusTime, A.note, A.avgScoreSort
+	</sql>
+	
+	<!-- PC-根据试卷编号获取班级统计信息  -->
+	<select id="getClassByExamPaperId" resultMap="ExamCensusClass" parameterType="java.util.Map">
+		SELECT <include refid="ColumnListClass" /> 
+			FROM <include refid="TableNameClass" /> AS A 
+			WHERE examPaperID = #{examPaperId,jdbcType=BIGINT} 
+					AND classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 终端-根据班级/科目获取月考成绩统计 -->
+	<!-- <select id="examResultConsult" resultMap="ExamCensusClass" parameterType="java.util.Map">
+		{
+			call p_card_examResultConsult(
+					#{termId,jdbcType=BIGINT,mode=IN},
+					#{subjectId,jdbcType=BIGINT,mode=IN},
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select> -->
+	
+	<!-- 终端-获取月考班级排名 -->
+	<select id="findRankingClass" resultMap="ExamCensusClass" parameterType="java.util.Map">
+		{
+			call p_card_exam_findRankingClass(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{subjectId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	
+	
+	<!-- 年级测验成绩统计对象 -->
+	<resultMap id="ExamCensusGrade" type="com.cn.iscp.entity.card.exam.ExamCensusGrade">
+		<id column="ID" property="censusId" jdbcType="BIGINT" />
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="examPaperID" property="examPaperId" jdbcType="BIGINT" />
+		<!-- <result column="examID" property="examId" jdbcType="BIGINT" /> -->
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="totalCount" property="totalCount" jdbcType="INTEGER" />
+		<result column="examCount" property="examCount" jdbcType="INTEGER" />
+		<result column="examRate" property="examRate" jdbcType="DOUBLE" />
+		<result column="lowestScore" property="lowestScore" jdbcType="DOUBLE" />
+		<result column="highestScore" property="highestScore" jdbcType="DOUBLE" />
+		<result column="averageScore" property="averageScore" jdbcType="DOUBLE" />
+		<result column="ScoreCount100" property="fullScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount90_99" property="goodScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount80_89" property="excelScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount60_79" property="fineScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreCount0_59" property="badScoreCount" jdbcType="INTEGER" />
+		<result column="ScoreRate100" property="fullScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate90_99" property="goodScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate80_89" property="excelScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate60_79" property="fineScoreRate" jdbcType="DOUBLE" />
+		<result column="ScoreRate0_59" property="badScoreRate" jdbcType="DOUBLE" />
+		<result column="censusTime" property="censusTime" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="TableNameGrade"> t_card_examresultstatistic_grade </sql>
+	<sql id="ColumnListGrade">
+		A.ID, A.examInfoID, A.examPaperID, 
+		A.schoolYearID, A.month, A.gradeID, A.totalCount, A.examCount, 
+		A.examRate, A.lowestScore, A.highestScore, A.averageScore, 
+		A.ScoreCount100, A.ScoreCount90_99, A.ScoreCount80_89, A.ScoreCount60_79, A.ScoreCount0_59, 
+		A.ScoreRate100, A.ScoreRate90_99, A.ScoreRate80_89, A.ScoreRate60_79, A.ScoreRate0_59, 
+		A.censusTime, A.note
+	</sql>
+	
+	<!-- PC-根据试卷编号获取年级统计信息  -->
+	<select id="getGradeByExamPaperId" resultMap="ExamCensusGrade" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnListGrade" /> 
+			FROM <include refid="TableNameGrade" /> AS A 
+			WHERE examPaperID = #{examPaperId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- PC-根据试卷编号统计 -->
+	<select id="examResultStatistic" parameterType="java.lang.Long">
+		{
+			call p_card_examResultStatistic(
+					#{examPaperId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

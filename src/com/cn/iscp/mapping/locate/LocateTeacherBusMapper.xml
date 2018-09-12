@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.locate.LocateTeacherBusDao">
+	
+    <!-- 跟车老师信息表 -->
+    <resultMap id="LocateTeacherBus" type="com.cn.iscp.entity.locate.LocateTeacherBus">
+      <id column="ID" property="tbId" jdbcType="BIGINT"/>
+      <result column="busID" property="busId" jdbcType="BIGINT"/>
+      <result column="teacherID" property="teacherId" jdbcType="BIGINT"/>
+      <result column="delivery" property="delivery" jdbcType="INTEGER"/>
+      
+      <result column="teacherName" property="teacherName" jdbcType="VARCHAR"/>
+      <result column="headPortrait" property="headPortrait" jdbcType="VARCHAR"/>
+      <result column="teacherMobile" property="teacherMobile" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="TableName">t_locate_teacherbus</sql>
+    
+    <sql id="ColumnList">
+      	A.ID, A.busID, A.teacherID, A.delivery
+    </sql>
+    
+   	<!-- 根据校车编号获取跟车老师信息 -->
+	<select id="findByBus" resultMap="LocateTeacherBus" parameterType="java.lang.Long">
+		{
+			call p_locate_teacherbus_findByBus(
+					#{busId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

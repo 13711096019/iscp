@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.CampusWorksDao">
+	
+	<!-- 风采作品对象 -->
+	<resultMap id="CampusWorks" type="com.cn.iscp.entity.card.CampusWorks">
+		<id column="ID" property="worksId" jdbcType="BIGINT" />
+		<result column="worksType" property="worksType" jdbcType="BIGINT" />
+		<result column="scopeID" property="scopeId" jdbcType="INTEGER" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="httpPath" property="httpPath" jdbcType="VARCHAR" />
+		<result column="localPath" property="localPath" jdbcType="VARCHAR" />
+		<result column="fileDir" property="fileDir" jdbcType="VARCHAR" />
+		<result column="fileName" property="fileName" jdbcType="VARCHAR" />
+		<result column="fileExt" property="fileExt" jdbcType="VARCHAR" />
+		<result column="hasValidDate" property="hasValidDate" jdbcType="INTEGER" />
+		<result column="startTime" property="startTime" jdbcType="VARCHAR" />
+		<result column="endTime" property="endTime" jdbcType="VARCHAR" />
+		<result column="distributeDate" property="distributeDate" jdbcType="VARCHAR" />
+		<result column="distributeUserID" property="distributeUserId" jdbcType="BIGINT" />
+		<result column="distributeUserName" property="distributeUserName" jdbcType="VARCHAR" />
+		<result column="uploadTime" property="uploadTime" jdbcType="VARCHAR" />
+		<result column="uploadUserID" property="uploadUserId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="distributeUserName" property="distributeUserName" jdbcType="BIGINT" />
+		<result column="distributeUserHead" property="distributeUserHead" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_campusworks </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.worksType, A.scopeID, A.title,A.distributeUserName, A.content, A.httpPath, A.localPath, 
+		A.fileDir, A.fileName, A.fileExt, A.hasValidDate, A.startTime, A.endTime, 
+		A.distributeDate, A.distributeUserID, A.uploadTime, A.uploadUserID, A.status
+	</sql>
+	
+	<!-- 终端-获取风采作品列表 -->
+	<select id="findCampusWorks" resultMap="CampusWorks" parameterType="java.util.Map">
+		SELECT c.title,c.content,c.localPath,c.distributeUserName
+			FROM <include refid="TableName" /> AS c
+			WHERE c.startTime &lt;= NOW() AND c.endTime &gt;= NOW() AND c.`status` = 1 
+			ORDER BY c.uploadTime DESC 
+			LIMIT 0,${getCount}
+	</select>
+	
+	<!-- 后台操作界面 -->
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="CampusWorks" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND (A.title LIKE '${statName}')
+			ORDER BY A.uploadTime DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND (A.title LIKE '${statName}')
+	</select>
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="CampusWorks" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID = #{worksId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- PC-获取全部有效风采作品列表 -->
+	<select id="findByValid" resultMap="CampusWorks" parameterType="java.util.Map">
+		SELECT c.title,c.content,c.localPath,c.distributeUserName
+			FROM <include refid="TableName" />  AS c
+			WHERE c.startTime &lt;= NOW() AND c.endTime &gt;= NOW() AND c.`status` = 1 
+			ORDER BY c.uploadTime DESC 
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.card.CampusWorks">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="worksType != null">
+				worksType,
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				title,
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content,
+			</if>
+            <if test="localPath != null &amp;&amp; localPath != ''">
+				localPath,
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime,
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime,
+			</if>
+			<if test="uploadTime != null &amp;&amp; uploadTime != ''">
+				uploadTime,
+			</if>
+			<if test="distributeDate != null &amp;&amp; distributeDate != ''">
+				distributeDate,
+			</if>
+			<if test="distributeUserName != null &amp;&amp; distributeUserName != ''">
+				distributeUserName,
+			</if>
+			<if test="uploadUserId != null">
+				uploadUserId,
+			</if>
+			<if test="scopeId != null">
+				scopeId,
+			</if>
+			<if test="hasValidDate != null">
+				hasValidDate,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="worksType != null">
+				#{worksType,jdbcType=BIGINT},
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				#{content,jdbcType=VARCHAR},
+			</if>
+			<if test="localPath != null &amp;&amp; localPath != ''">
+				#{localPath,jdbcType=VARCHAR},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				#{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				#{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadTime != null &amp;&amp; uploadTime != ''">
+				#{uploadTime,jdbcType=VARCHAR},
+			</if>
+			<if test="distributeDate != null &amp;&amp; distributeDate != ''">
+				#{distributeDate,jdbcType=VARCHAR},
+			</if>
+			<if test="distributeUserName != null &amp;&amp; distributeUserName != ''">
+				#{distributeUserName,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadUserId != null">
+				#{uploadUserId,jdbcType=BIGINT},
+			</if>
+			<if test="scopeId != null">
+				#{scopeId,jdbcType=INTEGER},
+			</if>
+			<if test="hasValidDate != null">
+				#{hasValidDate,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.CampusWorks">
+		UPDATE <include refid="TableName" />
+		<set>
+		    <if test="worksType != null">
+				worksType = #{worksType,jdbcType=BIGINT},
+			</if>
+			<if test="title != null &amp;&amp; title != ''">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="distributeUserName != null &amp;&amp; distributeUserName != ''">
+				distributeUserName = #{distributeUserName,jdbcType=VARCHAR},
+			</if>
+			<if test="uploadUserId != null">
+				uploadUserId = #{uploadUserId,jdbcType=BIGINT},
+			</if>
+			<if test="content != null &amp;&amp; content != ''">
+				content = #{content,jdbcType=VARCHAR},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime = #{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime = #{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="localPath != null &amp;&amp; localPath != ''">
+				localPath = #{localPath,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{worksId,jdbcType=BIGINT}
+	</update>
+</mapper>

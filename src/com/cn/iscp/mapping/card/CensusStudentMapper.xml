@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.CensusStudentDao">
+	
+	<!-- 班级统计对象 -->
+	<resultMap id="CensusStudent" type="com.cn.iscp.entity.card.CensusStudent">
+		<id column="ID" property="registryId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="isNew" property="isNew" jdbcType="INTEGER" />
+		<result column="isOnSchool" property="isOnSchool" jdbcType="INTEGER" />
+		<result column="isPioneer" property="isPioneer" jdbcType="INTEGER" />
+		<result column="isMeetPhisicalTarget" property="isMeetPhisicalTarget" jdbcType="INTEGER" />
+		<result column="isTrachoma" property="isTrachoma" jdbcType="INTEGER" />
+		<result column="isMyopicEye" property="isMyopicEye" jdbcType="INTEGER" />
+		<result column="isHealthy" property="isHealthy" jdbcType="INTEGER" />
+		<result column="isFitWaiver" property="isFitWaiver" jdbcType="INTEGER" />
+		<result column="healthStatusList" property="healthStatusList" jdbcType="INTEGER" />
+		<result column="leaveSchoolMode" property="leaveSchoolMode" jdbcType="INTEGER" />
+		<result column="shuttleMode" property="shuttleMode" jdbcType="INTEGER" />
+		<result column="isBreadfast" property="isBreadfast" jdbcType="INTEGER" />
+		<result column="isLunch" property="isLunch" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_studentstatusregistry </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.studentID, A.classEntityUpgradeID, A.isNew, A.isOnSchool, A.isPioneer, 
+		A.isMeetPhisicalTarget, A.isTrachoma, A.isMyopicEye, A.healthStatusList, 
+		A.leaveSchoolMode, A.shuttleMode, A.isHealthy, A.isFitWaiver, A.isBreadfast, 
+		A.isLunch, A.note
+	</sql>
+	
+	<!-- PC-获取学生统计信息  -->
+	<select id="getStudentCensus" resultMap="CensusStudent" parameterType="java.lang.Long">
+		{
+			call p_card_studentstatusregistry_getByStudent(
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.card.CensusStudent">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="studentId != null">
+				studentID,
+			</if>
+			<if test="classNum != null">
+				classEntityUpgradeID,
+			</if>
+			<if test="isNew != null">
+				isNew,
+			</if>
+			<if test="isOnSchool != null">
+				isOnSchool,
+			</if>
+			<if test="isPioneer != null">
+				isPioneer,
+			</if>
+			<if test="isMeetPhisicalTarget != null">
+				isMeetPhisicalTarget,
+			</if>
+			<if test="isTrachoma != null">
+				isTrachoma,
+			</if>
+			<if test="isMyopicEye != null">
+				isMyopicEye,
+			</if>
+			<if test="healthStatusList != null">
+				healthStatusList,
+			</if>
+			<if test="leaveSchoolMode != null">
+				leaveSchoolMode,
+			</if>
+			<if test="shuttleMode != null">
+				shuttleMode,
+			</if>
+			<if test="isHealthy != null">
+				isHealthy,
+			</if>
+			<if test="isFitWaiver != null">
+				isFitWaiver,
+			</if>
+			<if test="isBreadfast != null">
+				isBreadfast,
+			</if>
+			<if test="isLunch != null">
+				isLunch,
+			</if>
+			<if test="note != null">
+				note,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="studentId != null">
+				#{studentId,jdbcType=BIGINT},
+			</if>
+			<if test="classNum != null">
+				#{classNum,jdbcType=BIGINT},
+			</if>
+			<if test="isNew != null">
+				#{isNew,jdbcType=INTEGER},
+			</if>
+			<if test="isOnSchool != null">
+				#{isOnSchool,jdbcType=INTEGER},
+			</if>
+			<if test="isPioneer != null">
+				#{isPioneer,jdbcType=INTEGER},
+			</if>
+			<if test="isMeetPhisicalTarget != null">
+				#{isMeetPhisicalTarget,jdbcType=INTEGER},
+			</if>
+			<if test="isTrachoma != null">
+				#{isTrachoma,jdbcType=INTEGER},
+			</if>
+			<if test="isMyopicEye != null">
+				#{isMyopicEye,jdbcType=INTEGER},
+			</if>
+			<if test="healthStatusList != null">
+				#{healthStatusList,jdbcType=INTEGER},
+			</if>
+			<if test="leaveSchoolMode != null">
+				#{leaveSchoolMode,jdbcType=INTEGER},
+			</if>
+			<if test="shuttleMode != null">
+				#{shuttleMode,jdbcType=INTEGER},
+			</if>
+			<if test="isHealthy != null">
+				#{isHealthy,jdbcType=INTEGER},
+			</if>
+			<if test="isFitWaiver != null">
+				#{isFitWaiver,jdbcType=INTEGER},
+			</if>
+			<if test="isBreadfast != null">
+				#{isBreadfast,jdbcType=INTEGER},
+			</if>
+			<if test="isLunch != null">
+				#{isLunch,jdbcType=INTEGER},
+			</if>
+			<if test="note != null">
+				#{note,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.CensusStudent">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="isNew != null">
+				isNew = #{isNew,jdbcType=INTEGER},
+			</if>
+			<if test="isOnSchool != null">
+				isOnSchool = #{isOnSchool,jdbcType=INTEGER},
+			</if>
+			<if test="isPioneer != null">
+				isPioneer = #{isPioneer,jdbcType=INTEGER},
+			</if>
+			<if test="isMeetPhisicalTarget != null">
+				isMeetPhisicalTarget = #{isMeetPhisicalTarget,jdbcType=INTEGER},
+			</if>
+			<if test="isTrachoma != null">
+				isTrachoma = #{isTrachoma,jdbcType=INTEGER},
+			</if>
+			<if test="isMyopicEye != null">
+				isMyopicEye = #{isMyopicEye,jdbcType=INTEGER},
+			</if>
+			<if test="isHealthy != null">
+				isHealthy = #{isHealthy,jdbcType=INTEGER},
+			</if>
+			<if test="isFitWaiver != null">
+				isFitWaiver = #{isFitWaiver,jdbcType=INTEGER},
+			</if>
+			<if test="healthStatusList != null">
+				healthStatusList = #{healthStatusList,jdbcType=VARCHAR},
+			</if>
+			<if test="leaveSchoolMode != null">
+				leaveSchoolMode = #{leaveSchoolMode,jdbcType=INTEGER},
+			</if>
+			<if test="shuttleMode != null">
+				shuttleMode = #{shuttleMode,jdbcType=INTEGER},
+			</if>
+			<if test="isBreadfast != null">
+				isBreadfast = #{isBreadfast,jdbcType=INTEGER},
+			</if>
+			<if test="isLunch != null">
+				isLunch = #{isLunch,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE ID = #{registryId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

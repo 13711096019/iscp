@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.ClassDao">
+	
+	<!-- 班别对象 -->
+	<resultMap id="Class" type="com.cn.iscp.entity.base.Class">
+		<id column="ID" property="classId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="classAlias" property="classAlias" jdbcType="VARCHAR" />
+		<result column="value" property="value" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="upgradeJump" property="upgradeJump" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_class </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.gradeID, A.className, A.classAlias, A.value, A.sort, A.upgradeJump, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Class" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,g.gradeName
+			FROM <include refid="TableName" /> AS A
+				LEFT JOIN t_base_grade AS g ON A.gradeID = g.ID
+			WHERE A.ID = #{classId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据班实体编号获取对象  -->
+	<select id="findByEntity" resultMap="Class" parameterType="java.lang.Long">
+		SELECT c.*,e.classEntityUpgradeID FROM t_dbase_classentity AS e
+			LEFT JOIN t_base_class AS c ON c.ID = e.classID
+			WHERE e.ID = #{classEntityId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据班号获取对象 -->
+	<select id="findByNum" resultMap="Class" parameterType="java.lang.Integer">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.value = #{classNum,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 根据动态班级班号获取对象 -->
+	<select id="findByClassNum" resultMap="Class" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A
+					LEFT JOIN t_dbase_classentityupgrade AS ce ON ce.classID=A.ID
+			WHERE ce.ID = #{classNum,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Class" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0 AND A.gradeID = #{gradeId,jdbcType=BIGINT}
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	 
+	<!-- 根据年级获取班级列表 -->
+	<select id="findByGrade" resultMap="Class" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0 AND A.gradeID = #{gradeId,jdbcType=BIGINT}
+			ORDER BY A.sort ASC 
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Class">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="gradeId != null">
+				gradeID,
+			</if>
+			<if test="className != null &amp;&amp; className != ''">
+				className,
+			</if>
+			<if test="classAlias != null &amp;&amp; classAlias != ''">
+				classAlias,
+			</if>
+			<if test="value != null">
+				value,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="upgradeJump != null">
+				upgradeJump,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="gradeId != null">
+				#{gradeId,jdbcType=BIGINT},
+			</if>
+			<if test="className != null &amp;&amp; className != ''">
+				#{className,jdbcType=VARCHAR},
+			</if>
+			<if test="classAlias != null &amp;&amp; classAlias != ''">
+				#{classAlias,jdbcType=VARCHAR},
+			</if>
+			<if test="value != null">
+				#{value,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="upgradeJump != null">
+				#{upgradeJump,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Class">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="gradeId != null">
+				gradeID = #{gradeId,jdbcType=BIGINT},
+			</if>
+			<if test="className != null &amp;&amp; className != ''">
+				className = #{className,jdbcType=VARCHAR},
+			</if>
+			<if test="classAlias != null &amp;&amp; classAlias != ''">
+				classAlias = #{classAlias,jdbcType=VARCHAR},
+			</if>
+			<if test="value != null">
+				value = #{value,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="upgradeJump != null">
+				upgradeJump = #{upgradeJump,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{classId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

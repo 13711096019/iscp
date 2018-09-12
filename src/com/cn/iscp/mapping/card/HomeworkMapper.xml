@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.HomeworkDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 班级作业对象 -->
+	<resultMap id="Homework" type="com.cn.iscp.entity.card.Homework">
+		<id column="ID" property="homeworkId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+		<result column="homework" property="homework" jdbcType="VARCHAR" />
+		<result column="week" property="week" jdbcType="INTEGER" />
+		<result column="weekNum" property="weekNum" jdbcType="INTEGER" />
+		<result column="checkCount" property="checkCount" jdbcType="INTEGER" />
+		<result column="checkPatriarchIds" property="checkPatriarchIds" jdbcType="VARCHAR" />
+		<result column="totalCount" property="totalCount" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="teacherMobile" property="teacherMobile" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_homework </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.subjectID, A.teacherID, A.studyDate, A.homework, 
+		A.week, A.weekNum, A.checkCount, A.checkPatriarchIds
+	</sql>
+	
+	<!-- PC-根据编号获取对象 -->
+	<select id="findById" resultMap="Homework" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,totalCount
+			FROM <include refid="TableName" /> AS A
+				LEFT JOIN t_dbase_classentityupgrade AS cu ON cu.ID=A.classEntityUpgradeID
+			WHERE A.ID = #{homeworkId,jdbcType=BIGINT}
+	</select>
+
+	<!-- PC-获取最近一周班级作业 -->
+	<select id="findHomeworkWeek" resultMap="Homework" parameterType="java.lang.Long">
+		SELECT A.ID, A.homework, A.studyDate, s.subjectName, t.teacherName, t.headPortrait
+			FROM t_card_homework AS A
+						LEFT JOIN t_base_subject AS s ON s.ID=A.subjectID
+						LEFT JOIN t_base_teacher AS t ON t.ID=A.teacherID
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT} 
+					AND A.studyDate > date_sub(CURDATE(),interval 1 week)
+			ORDER BY A.studyDate DESC,A.subjectID ASC
+	</select>
+	
+	<!-- 终端-获取当前班级值日对象  -->
+	<select id="getHomeworkToday" resultMap="Homework" parameterType="java.lang.Long">
+		SELECT A.ID, A.homework, A.studyDate, s.subjectName, t.teacherName, t.headPortrait
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_base_subject AS s ON s.ID=A.subjectID
+				LEFT JOIN t_base_teacher AS t ON t.ID=A.teacherID
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT} AND A.studyDate = CURDATE()
+			ORDER BY A.studyTime DESC;
+	</select>
+	
+	<!-- 家长端-获取最近一次作业列表  -->
+	<select id="findHomeworkByNewly" resultMap="Homework" parameterType="java.lang.Long">
+		{
+			call p_card_hormwork_lastOneDay(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-根据日期获取班级作业  -->
+	<select id="findHormworkByDate" resultMap="Homework" parameterType="com.cn.iscp.entity.card.Homework">
+		{
+			call p_card_hormwork_findByDate(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-布置功课 -->
+	<select id="handleHomework" statementType="CALLABLE" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.card.Homework">
+		{
+			call p_card_handleHomework(
+					#{homeworkId,jdbcType=BIGINT,mode=IN}, 
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{subjectId,jdbcType=BIGINT,mode=IN}, 
+					#{homework,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 家长端-修改作业查看人数 -->
+	<select id="updateCheckCount" resultMap="StateModel" parameterType="com.cn.iscp.entity.card.Homework">
+		{
+			call p_card_homework_updateCheckCount(
+					#{homeworkId,jdbcType=BIGINT,mode=IN}, 
+					#{patriarchId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-根据老师获取功课列表 -->
+	<select id="findByTeacher" resultMap="Homework" parameterType="com.cn.iscp.entity.card.Homework">
+		{
+			call p_card_homework_findByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取没查看（已查看）作业的家长列表 -->
+	<select id="findCheckPatriarch" resultType="hashMap" parameterType="java.util.Map">
+		{
+			call p_card_hormwork_findCheckPatriarch(
+					#{homeworkId,jdbcType=BIGINT,mode=IN}, 
+					#{mark,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

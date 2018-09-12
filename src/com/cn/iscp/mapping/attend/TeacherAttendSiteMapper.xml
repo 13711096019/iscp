@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendSiteDao">
+	
+	<!-- 考勤地点 -->
+	<resultMap id="TeacherAttendSite" type="com.cn.iscp.entity.attend.TeacherAttendSite">
+		<id column="ID" property="siteId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="siteName" property="siteName" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="siteLng" property="siteLng" jdbcType="DOUBLE" />
+		<result column="siteLat" property="siteLat" jdbcType="DOUBLE" />
+		<result column="availableIn" property="availableIn" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendsite </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.siteName, A.address, siteLng, A.siteLat, A.availableIn, A.status
+	</sql>
+	
+	
+	<!-- 根据考勤组获取考勤地点  -->
+	<select id="findByGroup" resultMap="TeacherAttendSite" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendsite_findByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	<!-- 新增考勤地点  -->
+	<select id="insertSite" resultMap="TeacherAttendSite" parameterType="com.cn.iscp.entity.attend.TeacherAttendSite">
+		{
+			call p_attend_teacherattendsite_insert(
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{siteName,jdbcType=VARCHAR,mode=IN}, 
+					#{address,jdbcType=VARCHAR,mode=IN}, 
+					#{siteLng,jdbcType=DOUBLE,mode=IN}, 
+					#{siteLat,jdbcType=DOUBLE,mode=IN}, 
+					#{availableIn,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑考勤地点  -->
+	<select id="updateSite" resultMap="TeacherAttendSite" parameterType="com.cn.iscp.entity.attend.TeacherAttendSite">
+		{
+			call p_attend_teacherattendsite_update(
+					#{siteId,jdbcType=BIGINT,mode=IN}, 
+					#{siteName,jdbcType=VARCHAR,mode=IN}, 
+					#{address,jdbcType=VARCHAR,mode=IN}, 
+					#{siteLng,jdbcType=DOUBLE,mode=IN}, 
+					#{siteLat,jdbcType=DOUBLE,mode=IN}, 
+					#{availableIn,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除考勤地点  -->
+	<select id="deleteSite" resultMap="TeacherAttendSite" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendsite_delete(
+					#{siteId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据考勤组删除考勤地点  -->
+	<select id="deleteByGroup" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendsite_deleteByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

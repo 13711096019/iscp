@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.CourseTableDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+	   	<result column="statusCode" property="statusCode" jdbcType="INTEGER"/>
+	   	<result column="statusHint" property="statusHint" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- 课程信息对象 -->
+	<resultMap id="CourseTable" type="com.cn.iscp.entity.dbase.CourseTable">
+		<id column="ID" property="courseId" jdbcType="BIGINT" />
+		<result column="week" property="week" jdbcType="BIGINT" />
+		<result column="day" property="day" jdbcType="INTEGER" />
+		<result column="studyDate" property="studyDate" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="classID" property="classId" jdbcType="BIGINT" />
+		<result column="sessionID" property="sessionId" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="weekName" property="weekName" jdbcType="VARCHAR" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- PC-根据动态班级编号获取课程信息  -->
+	<select id="findByClassNum" resultMap="CourseTable" parameterType="java.lang.Long">
+		{
+			call p_dbase_coursetable_findByClassNum(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 工作-根据老师编号获取个人课程表  -->
+	<select id="findByTeacher" resultMap="CourseTable" parameterType="java.lang.Long">
+		{
+			call p_dbase_coursetable_findByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-更新班级课程表 -->
+	<select id="handleCourseTable" statementType="CALLABLE" parameterType="com.cn.iscp.entity.dbase.CourseTable">
+		{
+			call p_dbase_coursetable_handle(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{subjectNames,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	
+	<!-- 课堂对象 -->
+	<resultMap id="Classroom" type="com.cn.iscp.model.Classroom">
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="startTime" property="startTime" jdbcType="VARCHAR" />
+		<result column="endTime" property="endTime" jdbcType="VARCHAR" />
+		<result column="teacherDesc" property="teacherDesc" jdbcType="VARCHAR" />
+		<result column="teacherLabel" property="teacherLabel" jdbcType="VARCHAR" />
+		<result column="sessionName" property="sessionName" jdbcType="VARCHAR" />
+		<result column="vocation" property="vocation" jdbcType="VARCHAR" />
+		<result column="feature" property="feature" jdbcType="VARCHAR" />
+		<result column="undergo" property="undergo" jdbcType="VARCHAR" />
+		<result column="idea" property="idea" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 终端-根据班级编号获取课堂信息 -->
+	<select id="getCurrentLesson" statementType="CALLABLE" resultMap="StateModel,Classroom" parameterType="java.lang.Long">
+		{
+			call p_dbase_coursetable_findCurrentLesson(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-获取老师今天的所有课程 -->
+	<select id="findByToday" resultMap="Classroom" parameterType="java.lang.Long">
+		{
+			call p_dbase_coursetable_findByToday(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

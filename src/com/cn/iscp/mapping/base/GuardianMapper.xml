@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.GuardianDao">
+	
+	<!-- 学生监护人对象 -->
+	<resultMap id="Guardian" type="com.cn.iscp.entity.base.Guardian">
+		<id column="ID" property="guardianId" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="guardianName" property="guardianName" jdbcType="VARCHAR" />
+		<result column="relationId" property="relationId" jdbcType="INTEGER" />
+		<result column="idcard" property="idCard" jdbcType="VARCHAR" />
+	</resultMap>
+	
+    <sql id="TableName"> t_base_guardian </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.studentID, A.guardianName, A.relationId, A.idcard
+	</sql>
+	
+	<!-- 根据学生编号获取监护人列表  -->
+	<select id="findByStudent" resultMap="Guardian" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.studentId = #{studentId,jdbcType=INTEGER} 
+				AND A.guardianName IS NOT NULL
+			ORDER BY A.relationId ASC
+	</select>
+	
+</mapper>

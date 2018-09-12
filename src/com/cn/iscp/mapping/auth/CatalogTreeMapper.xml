@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.auth.CatalogTreeDao">
+	
+	<!-- 对象 -->
+	<resultMap id="CatalogTree" type="com.cn.iscp.entity.auth.CatalogTree">
+		<id column="ID" property="menuId" jdbcType="BIGINT" />
+		<result column="systemID" property="systemId" jdbcType="BIGINT" />
+		<result column="catalogID" property="catalogId" jdbcType="BIGINT" />
+		<result column="catalogCode" property="catalogCode" jdbcType="VARCHAR" />
+		<result column="catalogName" property="catalogName" jdbcType="VARCHAR" />
+		<result column="title" property="catalogTitle" jdbcType="VARCHAR" />
+		<result column="parentCatalogID" property="parentId" jdbcType="INTEGER" />
+		<result column="pagePath" property="pagePath" jdbcType="VARCHAR" />
+		<result column="createDate" property="createDate" jdbcType="VARCHAR" />
+		<result column="objectTypeID" property="objectTypeId" jdbcType="INTEGER" />
+		<result column="objectLevel" property="objectLevel" jdbcType="INTEGER" />
+		<result column="inUsed" property="inUsed" jdbcType="INTEGER" />
+		<result column="eventKey" property="eventKey" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="icon" property="icon" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_auth_catalogtree </sql>
+	
+	<sql id="ColumnList">
+		A.systemID, A.ID, A.catalogID, A.catalogCode, A.catalogName, A.title, A.parentCatalogID, 
+		A.pagePath, A.createDate, A.objectTypeID, A.objectLevel, A.inUsed, 
+		A.eventKey, A.sort, A.icon, A.note
+	</sql>
+	
+	<!-- PC-读取权限列表  -->
+	<select id="getRoleCatalogTree" resultMap="CatalogTree" parameterType="com.cn.iscp.entity.auth.CatalogTree">
+		{
+			call p_auth_getRoleCatalogTree(
+					#{userAccount,jdbcType=VARCHAR,mode=IN}, 
+					#{objectLevel,jdbcType=INTEGER,mode=IN}, 
+					#{catalogCode,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	
+</mapper>

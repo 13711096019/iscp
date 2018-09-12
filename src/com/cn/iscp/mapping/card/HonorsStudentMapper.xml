@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.honors.HonorsStudentDao">
+	
+	<!-- 班级荣誉对象 -->
+	<resultMap id="HonorsStudent" type="com.cn.iscp.entity.card.honors.HonorsStudent">
+		<id column="ID" property="shId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="honorsID" property="honorsId" jdbcType="BIGINT" />
+		<result column="honorsSort" property="honorsSort" jdbcType="INTEGER" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="year" property="year" jdbcType="INTEGER" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="honorsName" property="honorsName" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_studenthonors </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.studentID, A.honorsID, A.honorsSort, A.termID, 
+				A.year, A.month, A.studyDate, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 终端-获取最近一月学生荣誉列表  -->
+	<select id="findByMonty" resultMap="HonorsStudent" parameterType="java.lang.Long">
+		{
+			call p_card_findStudentHonorsByMonty(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-获取本学年度学生荣誉列表 -->
+	<select id="findByTerm" resultMap="HonorsStudent" parameterType="java.lang.Long">
+		{
+			call p_card_findStudentHonorsByTerm(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据荣誉类型获取学生荣誉列表 -->
+	<select id="findByType" resultMap="HonorsStudent" parameterType="com.cn.iscp.entity.card.honors.HonorsStudent">
+		{
+			call p_card_findStudentHonorsByType(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{honorsId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-颁发学生荣誉 -->
+	<select id="handleStudentHonors" statementType="CALLABLE" parameterType="com.cn.iscp.entity.card.honors.HonorsStudent">
+		{
+			call p_card_handleStudentHonors(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{honorsId,jdbcType=BIGINT,mode=IN}, 
+					#{studentIds,jdbcType=VARCHAR,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{note,jdbcType=VARCHAR,mode=IN}, 
+					#{status,jdbcType=INTEGER,mode=IN}, 
+					#{flagtime,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC首页-获取最新4个学生标兵  -->
+	<select id="findByFresh" resultMap="HonorsStudent">
+		SELECT s.`name` AS studentName,s.headPortrait,c.className,o.honorsName,h.studyDate 
+			FROM t_card_studenthonors AS h 
+					LEFT JOIN t_base_honors AS o ON o.ID=h.honorsID 
+					LEFT JOIN t_base_student AS s ON s.ID=h.studentID 
+					LEFT JOIN t_dbase_classentity AS ce ON ce.ID=s.classEntityID 
+					LEFT JOIN t_base_class AS c ON c.ID=ce.classID 
+			WHERE h.`status` = 1 
+			ORDER BY h.studyDate DESC 
+			LIMIT 0,4 
+	</select>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.card.honors.HonorsStudent">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{shId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

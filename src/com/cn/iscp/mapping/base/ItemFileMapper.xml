@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.ItemFileDao">
+	
+	<!-- 分类目录对象 -->
+	<resultMap id="ItemFile" type="com.cn.iscp.entity.base.ItemFile">
+		<result column="ID" property="itemFileId" jdbcType="BIGINT" />
+		<result column="itemDirID" property="itemDirId" jdbcType="BIGINT" />
+		<result column="itemFileName" property="itemFileName" jdbcType="VARCHAR" />
+		<result column="itemFileNick" property="itemFileNick" jdbcType="VARCHAR" />
+		<result column="itemFileDesc" property="itemFileDesc" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="itemDirName" property="itemDirName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_itemfile </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.itemDirID, A.itemFileName, A.itemFileNick, A.itemFileDesc, A.sort, A.status, A.flagtime
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ItemFile" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,d.itemDirName
+			FROM <include refid="TableName" /> AS A
+				LEFT JOIN t_base_itemdir AS d ON A.itemDirID = d.ID
+			WHERE A.ID = #{itemFileId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- PC-根据分类名称获取分项列表 -->
+	<select id="findByDirId" resultMap="ItemFile" parameterType="java.lang.Integer">
+		SELECT <include refid="ColumnList" />
+				FROM t_base_itemfile AS A
+				WHERE A.`status` = 1 AND A.itemDirID = #{itemDirId,jdbcType=INTEGER} 
+				ORDER BY A.sort ASC;
+	</select>
+	
+	<!-- PC-根据分项编号获取对象 -->
+	<select id="findByFileId" resultMap="ItemFile" parameterType="com.cn.iscp.entity.base.ItemFile">
+		SELECT ID,itemFileName,itemFileNick
+				FROM t_base_itemfile 
+				WHERE ID = #{itemDirId,jdbcType=INTEGER} 
+					AND itemDirID = #{itemFileId,jdbcType=INTEGER} 
+				ORDER BY sort ASC;
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="ItemFile" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0 AND A.itemDirID = #{itemDirId,jdbcType=BIGINT}
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.ItemFile">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="itemFileId != null">
+				ID,
+			</if>
+			<if test="itemDirId != null">
+				itemDirID,
+			</if>
+			<if test="itemFileName != null &amp;&amp; itemFileName != ''">
+				itemFileName,
+			</if>
+			<if test="itemFileDesc != null &amp;&amp; itemFileDesc != ''">
+				itemFileDesc,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="itemFileId != null">
+				#{itemFileId,jdbcType=BIGINT},
+			</if>
+			<if test="itemDirId != null">
+				#{itemDirId,jdbcType=BIGINT},
+			</if>
+			<if test="itemFileName != null &amp;&amp; itemFileName != ''">
+				#{itemFileName,jdbcType=VARCHAR},
+			</if>
+			<if test="itemFileDesc != null &amp;&amp; itemFileDesc != ''">
+				#{itemFileDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.ItemFile">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="itemDirId != null">
+				itemDirID = #{itemDirId,jdbcType=BIGINT},
+			</if>
+			<if test="itemFileName != null &amp;&amp; itemFileName != ''">
+				itemFileName = #{itemFileName,jdbcType=VARCHAR},
+			</if>
+			<if test="itemFileDesc != null &amp;&amp; itemFileDesc != ''">
+				itemFileDesc = #{itemFileDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{itemFileId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

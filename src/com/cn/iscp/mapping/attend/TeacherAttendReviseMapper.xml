@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendReviseDao">
+	
+	<!-- 补卡申请记录表 -->
+	<resultMap id="TeacherAttendRevise" type="com.cn.iscp.entity.attend.TeacherAttendRevise">
+		<id column="ID" property="reviseId" jdbcType="BIGINT" />
+		<result column="recordID" property="recordId" jdbcType="BIGINT" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="attendTime" property="attendTime" jdbcType="VARCHAR" />
+		<result column="reviseCause" property="reviseCause" jdbcType="VARCHAR" />
+		<result column="checkUserID" property="checkUserId" jdbcType="BIGINT" />
+		<result column="checkView" property="checkView" jdbcType="VARCHAR" />
+		<result column="checkState" property="checkState" jdbcType="INTEGER" />
+		<result column="checkTime" property="checkTime" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		
+		<result column="checkUserName" property="checkUserName" jdbcType="VARCHAR" />
+		<result column="reviseUserName" property="reviseUserName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendrevise </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.recordID, A.attendDate, attendTime, A.reviseCause, A.checkUserID, A.checkView, 
+		A.checkState, A.checkTime, A.createTime
+	</sql>
+	
+	<!-- 分页获取补卡列表  -->
+	<select id="findByPage" resultMap="TeacherAttendRevise" parameterType="com.cn.iscp.entity.attend.TeacherAttendRevise">
+		{
+			call p_attend_teacherattendrevise_findByPage(
+					#{checkState,jdbcType=BIGINT,mode=IN}, 
+					#{pageCount,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据打卡记录编号获取补卡列表  -->
+	<select id="findByRecord" resultMap="TeacherAttendRevise" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendrevise_findByRecord(
+					#{recordId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增补卡记录  -->
+	<select id="insertRevise" resultMap="TeacherAttendRevise" parameterType="com.cn.iscp.entity.attend.TeacherAttendRevise">
+		{
+			call p_attend_teacherattendrevise_insert(
+					#{recordId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}, 
+					#{attendTime,jdbcType=VARCHAR,mode=IN}, 
+					#{reviseCause,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 审批补卡记录  -->
+	<select id="checkRevise" resultMap="TeacherAttendRevise" parameterType="com.cn.iscp.entity.attend.TeacherAttendRevise">
+		{
+			call p_attend_teacherattendrevise_check(
+					#{recordId,jdbcType=BIGINT,mode=IN}, 
+					#{checkUserId,jdbcType=BIGINT,mode=IN}, 
+					#{checkView,jdbcType=VARCHAR,mode=IN}, 
+					#{checkState,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

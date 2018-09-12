@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.civilized.CivilizedRegularDao">
+	
+	<!-- 创文评分规则对象 -->
+	<resultMap id="CivilizedRegular" type="com.cn.iscp.entity.card.civilized.CivilizedRegular">
+		<id column="ID" property="smallItemId" jdbcType="BIGINT" />
+		<result column="bigItemID" property="bigItemId" jdbcType="BIGINT" />
+		<result column="smallItemType" property="smallItemType" jdbcType="INTEGER" />
+		<result column="isFixedScore" property="isFixedScore" jdbcType="INTEGER" />
+		<result column="smallItemSort" property="smallItemSort" jdbcType="INTEGER" />
+		<result column="smallItem" property="smallItem" jdbcType="BIGINT" />
+		<result column="allItemSort" property="allItemSort" jdbcType="INTEGER" />
+		<result column="scoreStandard" property="scoreStandard" jdbcType="DOUBLE" />
+		<result column="smallItemDesc" property="smallItemDesc" jdbcType="VARCHAR" />
+		<result column="allowOneNoteVeto" property="allowOneNoteVeto" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="bigItemName" property="bigItemName" jdbcType="VARCHAR" />
+		<result column="score" property="score" jdbcType="DOUBLE" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_createcivilization_scoreregular </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.bigItemID, A.smallItemType, A.isFixedScore, A.smallItemSort, A.smallItem, 
+		A.allItemSort, A.scoreStandard, A.smallItemDesc, A.allowOneNoteVeto, A.note
+	</sql>
+	
+	<!-- PC-根据大项获取信息列表 -->
+	<select id="findByItem" resultMap="CivilizedRegular" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.bigItemID = #{bigItemId,jdbcType=BIGINT}
+			ORDER BY A.allItemSort ASC 
+	</select>
+	
+	<!-- PC-根据编号获取对象 -->
+	<select id="findById" resultMap="CivilizedRegular" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{smallItemId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 老师端-获取所有创文评分规则-->
+	<select id="findScoreRegular" resultMap="CivilizedRegular" parameterType="com.cn.iscp.entity.card.civilized.CivilizedGiveScore">
+		{
+			call p_card_createcivilization_paper(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{raterType,jdbcType=INTEGER,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- PC-获取所有创文评分规则-->
+	<select id="findRegular" resultMap="CivilizedRegular">
+		{
+			call p_card_createcivilization_findRegular()
+		}
+	</select>
+	
+</mapper>

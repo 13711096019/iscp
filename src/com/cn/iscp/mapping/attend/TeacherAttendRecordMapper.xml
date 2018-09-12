@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendRecordDao">
+	
+	<!-- 老师打卡记录 -->
+	<resultMap id="TeacherAttendRecord" type="com.cn.iscp.entity.attend.TeacherAttendRecord">
+		<id column="ID" property="recordId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="shiftID" property="shiftId" jdbcType="BIGINT" />
+		<result column="axisID" property="axisId" jdbcType="BIGINT" />
+		<result column="siteID" property="siteId" jdbcType="BIGINT" />
+		<result column="wifiID" property="wifiId" jdbcType="BIGINT" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="attendTime" property="attendTime" jdbcType="VARCHAR" />
+		<result column="attendLng" property="attendLng" jdbcType="DOUBLE" />
+		<result column="attendLat" property="attendLat" jdbcType="DOUBLE" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="attendType" property="attendType" jdbcType="INTEGER" />
+		<result column="attendState" property="attendState" jdbcType="INTEGER" />
+		<result column="exteriorAttend" property="exteriorAttend" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendrecord </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.userID, A.groupID, shiftID, A.axisID, A.siteID, A.wifiID, A.attendDate, 
+		A.attendTime, A.attendLng, A.attendLat, A.address, A.attendType, A.attendState, 
+		A.exteriorAttend, A.status
+	</sql>
+	
+	<!-- 每天自动生成考勤记录  -->
+	<select id="handleRecord" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendrecord_handle(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 统计打卡记录状态  -->
+	<select id="censusRecord" parameterType="java.lang.String">
+		{
+			call p_attend_teacherattendrecord_census(
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据日期获取打卡记录 -->
+	<select id="findByDate" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.TeacherAttendRecord">
+		{
+			call p_attend_teacherattendrecord_findByDate(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据排班编号获取考勤记录   -->
+	<select id="findByScheduling" resultType="hashMap" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendrecord_findByScheduling(
+					#{schedulingId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增考勤记录  -->
+	<select id="insertRecord" resultMap="TeacherAttendRecord" parameterType="com.cn.iscp.entity.attend.TeacherAttendRecord">
+		{
+			call p_attend_teacherattendrecord_insert(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{axisId,jdbcType=BIGINT,mode=IN}, 
+					#{siteId,jdbcType=BIGINT,mode=IN}, 
+					#{wifiId,jdbcType=BIGINT,mode=IN}, 
+					#{attendDate,jdbcType=VARCHAR,mode=IN}, 
+					#{attendTime,jdbcType=VARCHAR,mode=IN}, 
+					#{attendLng,jdbcType=DOUBLE,mode=IN}, 
+					#{attendLat,jdbcType=DOUBLE,mode=IN}, 
+					#{attendType,jdbcType=INTEGER,mode=IN}, 
+					#{attendState,jdbcType=INTEGER,mode=IN}, 
+					#{exteriorAttend,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

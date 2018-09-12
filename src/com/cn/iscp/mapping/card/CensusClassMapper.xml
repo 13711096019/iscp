@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.CensusClassDao">
+	
+	<!-- 班级统计对象 -->
+	<resultMap id="CensusClass" type="com.cn.iscp.entity.card.CensusClass">
+		<id column="ID" property="statisticId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="newCount" property="newCount" jdbcType="INTEGER" />
+		<result column="onSchoolCount" property="onSchoolCount" jdbcType="INTEGER" />
+		<result column="pioneerCount" property="pioneerCount" jdbcType="INTEGER" />
+		<result column="meetPhisicalTargetCount" property="meetPhisicalTargetCount" jdbcType="INTEGER" />
+		<result column="healthyCount" property="healthyCount" jdbcType="INTEGER" />
+		<result column="fitWaiverCount" property="fitWaiverCount" jdbcType="INTEGER" />
+		<result column="trachomaCount" property="trachomaCount" jdbcType="INTEGER" />
+		<result column="myopicEyeCount" property="myopicEyeCount" jdbcType="INTEGER" />
+		<result column="specialDiseaseCount" property="specialDiseaseCount" jdbcType="INTEGER" />
+		<result column="noonEveningLeaveCount" property="noonEveningLeaveCount" jdbcType="INTEGER" />
+		<result column="eveningLeaveCount" property="eveningLeaveCount" jdbcType="INTEGER" />
+		<result column="shuttleMode_parent" property="shuttleModeParent" jdbcType="INTEGER" />
+		<result column="shuttleMode_bus" property="shuttleModeBus" jdbcType="INTEGER" />
+		<result column="breadfastCount" property="breadfastCount" jdbcType="INTEGER" />
+		<result column="lunchCount" property="lunchCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_studentstatusstatistic </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.schoolYearId, A.newCount, A.onSchoolCount, 
+		A.pioneerCount, A.meetPhisicalTargetCount, A.healthyCount, A.fitWaiverCount, 
+		A.trachomaCount, A.myopicEyeCount, A.specialDiseaseCount, A.noonEveningLeaveCount, 
+		A.eveningLeaveCount, A.shuttleMode_parent, A.shuttleMode_bus, A.breadfastCount, A.lunchCount
+	</sql>
+	
+	<!-- PC-获取班级统计对象  -->
+	<select id="getClassCensus" resultMap="CensusClass" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A
+			WHERE classEntityUpgradeID = #{classNum,jdbcType=BIGINT};
+	</select>
+	
+	<!-- PC-统计本学期学生的情况  -->
+	<select id="censusClassCensus">
+		{
+			call p_card_studentstatusstatistic_handle(NULL)
+		}
+	</select>
+	
+</mapper>

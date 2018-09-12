@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.BusSplitCensusDao">
+	
+	<!-- 设备信息 -->
+	<resultMap id="BusSplitCensus" type="com.cn.iscp.entity.attend.BusSplitCensus">
+		<id column="ID" property="splitId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="attendDate" property="attendDate" jdbcType="VARCHAR" />
+		<result column="startTimeSchool" property="startTimeSchool" jdbcType="VARCHAR" />
+		<result column="leaveTimeSchool" property="leaveTimeSchool" jdbcType="VARCHAR" />
+		<result column="attendStateSchool" property="attendStateSchool" jdbcType="INTEGER" />
+		<result column="startTimeGohome" property="startTimeGohome" jdbcType="VARCHAR" />
+		<result column="leaveTimeGohome" property="leaveTimeGohome" jdbcType="VARCHAR" />
+		<result column="attendStateGohome" property="attendStateGohome" jdbcType="INTEGER" />
+		
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_bussplitcensus </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.studentID, A.attendDate, 
+		A.startTimeSchool, A.leaveTimeSchool, A.attendStateSchool, 
+		A.startTimeGohome, A.leaveTimeGohome, A.attendStateGohome
+	</sql>
+	
+	<!-- 处理学生上学放学记录  -->
+	<select id="handleStudentSplit" resultMap="BusSplitCensus" parameterType="java.util.Map">
+		{
+			call p_attend_bussplitcensus_handle(
+					#{studentCardPhys,jdbcType=VARCHAR,mode=IN}, 
+					#{attendTimes,jdbcType=VARCHAR,mode=IN}, 
+					#{attendType,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

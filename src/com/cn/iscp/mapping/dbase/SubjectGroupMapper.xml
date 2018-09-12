@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.SubjectGroupDao">
+	
+	<!-- 科组对象 -->
+	<resultMap id="SubjectGroup" type="com.cn.iscp.entity.dbase.SubjectGroup">
+		<id column="ID" property="groupId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="isLeader" property="isLeader" jdbcType="INTEGER" />
+		
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="teacherMobile" property="teacherMobile" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 公共实体类 -->
+	<resultMap id="Artascope" type="com.cn.iscp.model.Artascope">
+		<result column="recordsCount" property="recordsCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName">t_dbase_subjectgroup</sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.gradeID, A.subjectID, A.teacherID, A.isLeader
+	</sql>
+	
+	<!-- 工作-根据老师编号获取科组关系列表 -->
+	<select id="findByTeacher" resultMap="SubjectGroup" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />, g.gradeName, s.subjectName 
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_base_grade AS g ON g.ID=A.gradeID 
+				LEFT JOIN t_base_subject AS s ON s.ID=A.subjectID 
+			WHERE A.teacherID = #{teacherId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 工作-获取科组老师列表 -->
+	<select id="findBySubject" resultMap="SubjectGroup" parameterType="com.cn.iscp.entity.dbase.SubjectGroup">
+		SELECT A.teacherID,t.teacherName,A.isLeader
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_base_teacher AS t ON t.ID=A.teacherID
+			WHERE A.gradeID = #{gradeId,jdbcType=BIGINT} 
+				AND A.subjectID = #{subjectId,jdbcType=BIGINT} 
+			ORDER BY A.isLeader DESC,A.teacherID ASC;
+	</select>
+	
+	<!-- PC-根据老师编号获取所在科组的年级列表 -->
+	<select id="findGradeByTeacher" resultMap="SubjectGroup" parameterType="java.lang.Long">
+		{
+			call p_dbase_subjectgroup_findGradeByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据老师编号获取所在科组年级的科目列表 -->
+	<select id="findSubjectByTeacher" resultMap="SubjectGroup" parameterType="com.cn.iscp.entity.dbase.SubjectGroup">
+		{
+			call p_dbase_subjectgroup_findSubjectByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{gradeId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-分页获取科组信息 -->
+	<select id="findByPage" statementType="CALLABLE" resultMap="Artascope,SubjectGroup" parameterType="java.util.Map">
+		{
+			call p_dbase_subjectgroup_findByPage(
+					#{gradeId,jdbcType=BIGINT,mode=IN}, 
+					#{subjectId,jdbcType=BIGINT,mode=IN}, 
+					#{statName,jdbcType=VARCHAR,mode=IN}, 
+					#{startRecord,jdbcType=INTEGER,mode=IN}, 
+					#{pageSize,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-重新分配科组长 -->
+	<select id="updateLeader" resultMap="SubjectGroup" parameterType="java.lang.Long">
+		{
+			call p_dbase_subjectgroup_editLeader(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-移除科组某一老师 -->
+	<delete id="delete" parameterType="java.lang.Long">
+		DELETE FROM <include refid="TableName" /> 
+			WHERE ID = #{groupId,jdbcType=BIGINT,mode=IN}
+	</delete>
+	
+	<!-- PC-添加科组老师 -->
+	<select id="insert" resultMap="SubjectGroup" parameterType="com.cn.iscp.entity.dbase.SubjectGroup">
+		{
+			call p_dbase_subjectgroup_insert(
+         			#{gradeId,jdbcType=BIGINT,mode=IN}, 
+         			#{subjectId,jdbcType=BIGINT,mode=IN}, 
+         			#{teacherId,jdbcType=BIGINT,mode=IN}, 
+         			#{isLeader,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据科目编号获取老师列表  -->
+	<select id="findTeacherBySubject" resultMap="SubjectGroup" parameterType="com.cn.iscp.entity.dbase.SubjectGroup">
+		SELECT ts.teacherID,t.teacherName,
+				(SELECT COUNT(ID) FROM t_dbase_subjectgroup WHERE subjectID=ts.subjectID AND teacherID=ts.teacherID AND gradeID=#{gradeId,jdbcType=BIGINT,mode=IN}) AS isLeader 
+			FROM t_base_teachersubject AS ts
+					LEFT JOIN t_base_teacher AS t ON t.ID=ts.teacherID
+			WHERE ts.subjectID = #{subjectId,jdbcType=BIGINT,mode=IN} AND ts.`status` = 1 
+			ORDER BY ts.teacherID ASC
+	</select>
+	
+	<!-- PC-处理科组老师 -->
+	<select id="handleGroup" parameterType="com.cn.iscp.entity.dbase.SubjectGroup">
+		{
+			call p_dbase_subjectgroup_handle(
+         			#{gradeId,jdbcType=BIGINT,mode=IN}, 
+         			#{subjectId,jdbcType=BIGINT,mode=IN}, 
+         			#{teacherIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

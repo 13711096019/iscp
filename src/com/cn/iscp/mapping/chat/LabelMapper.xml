@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.chat.LabelDao">
+	
+	<!-- 标签对象 -->
+	<resultMap id="Label" type="com.cn.iscp.entity.chat.Label">
+		<id column="ID" property="labelId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="labelName" property="labelName" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		
+		<result column="friendIds" property="friendIds" jdbcType="VARCHAR" />
+		<result column="friendNames" property="friendNames" jdbcType="VARCHAR" />
+		<result column="friendCount" property="friendCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_chat_label </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.userID, A.labelName, A.createTime
+	</sql>
+	
+	<!-- 根据老师获取标签列表  -->
+	<select id="findByUser" resultMap="Label" parameterType="java.lang.Long">
+		{
+			call p_chat_label_findByUser(
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增标签信息  -->
+	<select id="insertLabel" resultMap="Label" parameterType="com.cn.iscp.entity.chat.Label">
+		{
+			call p_chat_label_insert(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{labelName,jdbcType=VARCHAR,mode=IN}, 
+					#{friendIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑标签信息  -->
+	<select id="updateLabel" resultMap="Label" parameterType="com.cn.iscp.entity.chat.Label">
+		{
+			call p_chat_label_update(
+					#{labelId,jdbcType=BIGINT,mode=IN}, 
+					#{labelName,jdbcType=VARCHAR,mode=IN}, 
+					#{friendIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除标签信息  -->
+	<select id="deleteLabel" parameterType="java.lang.Long">
+		{
+			call p_chat_label_delete(
+					#{labelId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

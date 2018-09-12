@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.ClassMottoDao">
+	
+	<!-- 班级统计对象 -->
+	<resultMap id="ClassMotto" type="com.cn.iscp.entity.card.ClassMotto">
+		<id column="ID" property="mottoId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="atmosphere" property="atmosphere" jdbcType="VARCHAR" />
+		<result column="motto" property="motto" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="slogan" property="slogan" jdbcType="VARCHAR" />
+		<result column="goal" property="goal" jdbcType="VARCHAR" />
+		<result column="regulations" property="regulations" jdbcType="VARCHAR" />
+		<result column="leaveWord" property="leaveWord" jdbcType="VARCHAR" />
+		<result column="appearance" property="appearance" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_classmotto </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.atmosphere, A.motto, A.note, 
+		A.slogan, A.goal, A.regulations, A.leaveWord, A.appearance
+	</sql>
+	
+	<!-- 终端-获取班级班风班训  -->
+	<select id="getByClassNum" resultMap="ClassMotto" parameterType="java.lang.Long">
+		SELECT A.ID, IFNULL(A.classEntityUpgradeID,c.ID) AS classEntityUpgradeID, 
+				A.atmosphere, A.motto, A.note, A.slogan, A.goal, A.regulations, A.leaveWord, A.appearance
+			FROM t_dbase_classentityupgrade AS c
+					LEFT JOIN t_card_classmotto AS A ON A.classEntityUpgradeID=c.ID
+			WHERE c.ID = #{classNum,jdbcType=BIGINT};
+	</select>
+	
+	<!-- PC-处理班风班训 -->
+	<select id="handleClassMotto" statementType="CALLABLE" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.card.ClassMotto">
+		{
+			call p_card_handleClassMotto(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{atmosphere,jdbcType=VARCHAR,mode=IN},
+					#{motto,jdbcType=VARCHAR,mode=IN},
+					#{slogan,jdbcType=VARCHAR,mode=IN},
+					#{goal,jdbcType=VARCHAR,mode=IN},
+					#{leaveWord,jdbcType=VARCHAR,mode=IN},
+					#{appearance,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

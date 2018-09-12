@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.auth.RoleDao">
+	
+	<!-- 对象 -->
+	<resultMap id="AuthRole" type="com.cn.iscp.entity.auth.Role">
+		<id column="ID" property="roleId" jdbcType="BIGINT" />
+		<result column="roleName" property="roleName" jdbcType="VARCHAR" />
+		<result column="roleAlias" property="roleAlias" jdbcType="VARCHAR" />
+		<result column="parentID" property="parentId" jdbcType="VARCHAR" />
+		<result column="userType" property="userType" jdbcType="INTEGER" />
+		<result column="roleRank" property="roleRank" jdbcType="INTEGER" />
+		<result column="scopeType" property="scopeType" jdbcType="INTEGER" />
+		<result column="moduleID" property="moduleId" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="authorizationIDList" property="authorizationIds" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_auth_rolemgr </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.roleName, A.roleAlias, A.userType, A.parentID, A.roleRank, A.scopeType, 
+		A.moduleID, A.status, A.note, A.authorizationIDList
+	</sql>
+	
+	<!-- PC-根据角色等级获取角色列表  -->
+	<select id="findRoleByRank" resultMap="AuthRole" parameterType="java.lang.Long">
+		{
+			call p_auth_findRoleByRank(
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-获取所有教员角色列表  -->
+	<select id="findAll" resultMap="AuthRole">
+		{
+			call p_auth_role_findAll()
+		}
+	</select>
+	
+	<!-- 获取需要考勤角色列表  -->
+	<select id="findByAttend" resultMap="AuthRole">
+		{
+			call p_auth_role_findByAttend()
+		}
+	</select>
+	
+</mapper>

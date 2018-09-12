@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.CookBookDao">
+	
+	<!-- 班级统计对象 -->
+	<resultMap id="CookBook" type="com.cn.iscp.entity.card.CookBook">
+		<id column="ID" property="cookId" jdbcType="BIGINT" />
+		<result column="weekDay" property="weekDay" jdbcType="INTEGER" />
+		<result column="breakfastCookBook" property="breakfastCook" jdbcType="VARCHAR" />
+		<result column="lunchCookBook" property="lunchCook" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_cookbook </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.weekDay, A.breakfastCookBook, A.lunchCookBook
+	</sql>
+	
+	<!-- PC-根据学年获取菜谱  -->
+	<select id="findByTerm" resultMap="CookBook">
+		{
+			call p_card_findCookBook()
+		}
+	</select>
+	
+	<!-- PC-根据编号获取菜谱对象 -->
+	<select id="findById" resultMap="CookBook" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A
+			WHERE ID = #{cookId,jdbcType=BIGINT};
+	</select>
+	
+	
+	<!-- PC-修改菜谱 -->
+	<select id="editCookBook" resultMap="CookBook" parameterType="com.cn.iscp.entity.card.CookBook">
+		{
+			call p_card_editCookBook(
+					#{cookId,jdbcType=BIGINT,mode=IN},
+					#{breakfastCook,jdbcType=VARCHAR,mode=IN},
+					#{lunchCook,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamInfoDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 试卷信息对象 -->
+	<resultMap id="ExamInfo" type="com.cn.iscp.entity.card.exam.ExamInfo">
+		<id column="ID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="tempID" property="tempId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="INTEGER" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="examType" property="examType" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="allowPush" property="allowPush" jdbcType="INTEGER" />
+		<result column="minutesCountInAdvance" property="minutesCountInAdvance" jdbcType="INTEGER" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="uploadUserID" property="uploadUserId" jdbcType="BIGINT" />
+		<result column="fullScore" property="fullScore" jdbcType="INTEGER" />
+		<result column="excellentScore" property="excellentScore" jdbcType="INTEGER" />
+		<result column="passScore" property="passScore" jdbcType="INTEGER" />
+		<result column="examInfoState" property="examInfoState" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="tempTitle" property="tempTitle" jdbcType="VARCHAR" />
+		<result column="examTypeName" property="examTypeName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_examinfo </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.tempID, A.schoolYearID, A.termID, A.examMonth, A.month, A.examType, A.gradeID, 
+		A.title, A.allowPush, A.minutesCountInAdvance, A.createTime, A.note, A.uploadUserID, 
+		A.fullScore, A.excellentScore, A.passScore, A.examInfoState, A.status
+	</sql>
+	
+	<!-- 获取考试信息列表 -->
+	<select id="findAll" resultMap="ExamInfo" parameterType="java.lang.Long">
+		{
+			call p_card_examinfo_findAll(
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ExamInfo" parameterType="java.lang.Long">
+		SELECT ei.*,et.title AS tempTitle,it.itemFileName AS examTypeName  
+			FROM t_card_examinfo AS ei 
+					LEFT JOIN t_card_examseatingcharttemp AS et ON et.ID=ei.tempID
+					LEFT JOIN t_base_itemfile AS it ON it.ID=ei.examType AND it.itemDirID = 2
+			WHERE ei.ID = #{examInfoId,jdbcType=BIGINT} 
+	</select>
+	
+	<!-- PC-判断试卷是否存在重复 -->
+	<select id="judgeRepeat" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.card.exam.ExamInfo">
+		{
+			call p_card_examinfo_judgeRepeat(
+					#{examType,jdbcType=BIGINT,mode=IN},
+					#{gradeId,jdbcType=BIGINT,mode=IN},
+					#{month,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 添加考试信息 -->
+	<select id="insertExamInfo" resultMap="ExamInfo" parameterType="com.cn.iscp.entity.card.exam.ExamInfo">
+		{
+			call p_card_examinfo_insert(
+					#{gradeId,jdbcType=BIGINT,mode=IN},
+					#{tempId,jdbcType=BIGINT,mode=IN},
+					#{examType,jdbcType=BIGINT,mode=IN},
+					#{examMonth,jdbcType=VARCHAR,mode=IN},
+					#{month,jdbcType=INTEGER,mode=IN},
+					#{note,jdbcType=VARCHAR,mode=IN},
+					#{uploadUserId,jdbcType=BIGINT,mode=IN},
+					#{allowPush,jdbcType=INTEGER,mode=IN},
+					#{fullScore,jdbcType=INTEGER,mode=IN},
+					#{excellentScore,jdbcType=INTEGER,mode=IN},
+					#{passScore,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除试卷信息 -->
+	<select id="deleteExamInfo" resultMap="StateModel" parameterType="java.lang.Long">
+		{
+			call p_card_examinfo_delete(
+					#{examInfoId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

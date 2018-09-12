@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendShiftDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 考勤班次表 -->
+	<resultMap id="TeacherAttendShift" type="com.cn.iscp.entity.attend.TeacherAttendShift">
+		<id column="ID" property="shiftId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="shiftName" property="shiftName" jdbcType="VARCHAR" />
+		<result column="shiftType" property="shiftType" jdbcType="INTEGER" />
+		<result column="severeLateness" property="severeLateness" jdbcType="INTEGER" />
+		<result column="absent" property="absent" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendshift </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.shiftName, shiftType, A.severeLateness, A.absent, A.status
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="TeacherAttendShift" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE  A.status=1 AND A.ID = #{shiftId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据考勤组获取考勤地点  -->
+	<select id="findByGroup" resultMap="TeacherAttendShift" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendshift_findByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 新增考勤班次  -->
+	<select id="insertShift" resultMap="TeacherAttendShift" parameterType="com.cn.iscp.entity.attend.TeacherAttendShift">
+		{
+			call p_attend_teacherattendshift_insert(
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{shiftName,jdbcType=VARCHAR,mode=IN}, 
+					#{shiftType,jdbcType=INTEGER,mode=IN}, 
+					#{severeLateness,jdbcType=INTEGER,mode=IN}, 
+					#{absent,jdbcType=INTEGER,mode=IN}, 
+					#{axisJson,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑考勤班次  -->
+	<select id="updateShift" resultMap="TeacherAttendShift" parameterType="com.cn.iscp.entity.attend.TeacherAttendShift">
+		{
+			call p_attend_teacherattendshift_update(
+					#{shiftId,jdbcType=BIGINT,mode=IN}, 
+					#{shiftName,jdbcType=VARCHAR,mode=IN}, 
+					#{shiftType,jdbcType=INTEGER,mode=IN}, 
+					#{severeLateness,jdbcType=INTEGER,mode=IN}, 
+					#{absent,jdbcType=INTEGER,mode=IN}, 
+					#{axisJson,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除考勤班次  -->
+	<select id="deleteShift" resultMap="StateModel" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendshift_delete(
+					#{shiftId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

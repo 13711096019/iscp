@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.RemindDao">
+	
+	<!-- 用户职位对象 -->
+	<resultMap id="Remind" type="com.cn.iscp.entity.ligent.Remind">
+		<result column="ID" property="remindId" jdbcType="BIGINT" />
+		<result column="remindKey" property="remindKey" jdbcType="VARCHAR" />
+		<result column="remindTitle" property="remindTitle" jdbcType="VARCHAR" />
+		<result column="remindContent" property="remindContent" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="logionContent" property="logionContent" jdbcType="VARCHAR" />
+		<result column="renewContent" property="renewContent" jdbcType="VARCHAR" />
+		<result column="renewDate" property="renewDate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 随机获取一条数据 -->
+	<select id="getByRandom" resultMap="Remind">
+		{
+			call p_ligent_remind_findByRandom()
+		}
+	</select>
+	
+	<!-- 根据Key获取数据 -->
+	<select id="getByKey" resultMap="Remind" parameterType="java.lang.String">
+		{
+			call p_ligent_remind_findByKey(
+					#{remindKey,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

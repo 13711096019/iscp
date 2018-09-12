@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.HomeworkScoreDao">
+	
+	<!-- 班级作业对象 -->
+	<resultMap id="HomeworkScore" type="com.cn.iscp.entity.card.HomeworkScore">
+		<id column="ID" property="homeworkscoreId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classEntityUpgradeId" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="homeworkID" property="homeworkId" jdbcType="BIGINT" />
+		<result column="finishMark" property="finishMark" jdbcType="BIGINT" />
+		<result column="finishTime" property="finishTime" jdbcType="VARCHAR" />
+		<result column="confirmTime" property="confirmTime" jdbcType="VARCHAR" />
+		<result column="parentName" property="parentName" jdbcType="VARCHAR" />
+		<result column="score" property="score" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_homework_score </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.studentID, A.homeworkID, A.finishMark, 
+		A.finishTime, A.confirmTime, A.parentName, A.score, A.note
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="HomeworkScore" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{homeworkscoreId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- APP家长确认作业 -->
+	<select id="handleHomeworkScore" statementType="CALLABLE" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.card.HomeworkScore">
+		{
+			call p_card_handleHomeworkScore(
+					#{homeworkscoreId,jdbcType=BIGINT,mode=IN}, 
+					#{classEntityUpgradeId,jdbcType=BIGINT,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{homeworkId,jdbcType=BIGINT,mode=IN}, 
+					#{finishMark,jdbcType=BIGINT,mode=IN}, 
+					#{finishTime,jdbcType=VARCHAR,mode=IN}, 
+					#{confirmTime,jdbcType=VARCHAR,mode=IN}, 
+					#{parentName,jdbcType=VARCHAR,mode=IN}, 
+					#{note,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeBillDao">
+	
+    <!-- 收费统计 -->
+    <resultMap id="ChargeBill" type="com.cn.iscp.entity.pay.ChargeBill" >
+      <id column="ID" property="chargeBillId" jdbcType="BIGINT"/>
+      <result column="recordID" property="recordId" jdbcType="BIGINT"/>
+      <result column="orderID" property="orderId" jdbcType="BIGINT"/>
+      <result column="patriarchID" property="patriarchId" jdbcType="BIGINT"/>
+      <result column="studentID" property="studentId" jdbcType="BIGINT"/>
+      <result column="gradeID" property="gradeId" jdbcType="BIGINT"/>
+      <result column="chargeTypeID" property="chargeTypeId" jdbcType="BIGINT"/>
+      <result column="payTime" property="payTime" jdbcType="VARCHAR"/>
+      <result column="createTime" property="createTime" jdbcType="VARCHAR"/>
+      <result column="totalPrice" property="totalPrice" jdbcType="VARCHAR"/>
+      <result column="payWay" property="payWay" jdbcType="INTEGER"/>
+      
+      <result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT"/>
+      <result column="typeName" property="typeName" jdbcType="VARCHAR"/>
+      <result column="gradeName" property="gradeName" jdbcType="VARCHAR"/>
+      <result column="className" property="className" jdbcType="VARCHAR"/>
+      <result column="studentName" property="studentName" jdbcType="VARCHAR"/>
+      <result column="admissionDate" property="admissionDate" jdbcType="VARCHAR"/>
+      <result column="patriarchName" property="patriarchName" jdbcType="VARCHAR"/>
+      <result column="orderNo" property="orderNo" jdbcType="VARCHAR"/>
+      <result column="orderTitle" property="orderTitle" jdbcType="VARCHAR"/>
+      <result column="totalCount" property="totalCount" jdbcType="INTEGER"/>
+      <result column="payCount" property="payCount" jdbcType="INTEGER"/>
+      <result column="transactionId" property="transactionId" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="TableName">t_pay_chargebill</sql>
+    
+    <sql id="ColumnList">
+      	A.ID,A.recordID,A.orderID,A.patriarchID,A.studentID,A.gradeID,
+      	A.chargeTypeID,A.payTime,A.totalPrice,A.payWay,A.createTime
+    </sql>
+    
+   	<!-- 获取收据凭证数据 -->
+	<select id="findByStudent" resultMap="ChargeBill" parameterType="com.cn.iscp.entity.pay.ChargeBill">
+		{
+			call p_pay_chargebill_findByStudent(
+					#{orderId,jdbcType=BIGINT,mode=IN}, 
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{chargeTypeId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据缴费记录获取缴费单 -->
+	<select id="findByRecord" resultMap="ChargeBill" parameterType="java.lang.Long">
+		SELECT cb.chargeTypeID,ct.typeName,cb.totalPrice 
+				FROM t_pay_chargebill AS cb 
+						LEFT JOIN t_pay_chargetype AS ct ON ct.ID=cb.chargeTypeID 
+				WHERE cb.recordID = #{recordId,jdbcType=BIGINT,mode=IN} 
+				ORDER BY ct.sort ASC 
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID > 0 AND (A.totalPrice LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ChargeBill" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.ID = #{chargebillId,jdbcType=BIGINT}
+	</select>
+    
+   	<!-- 统计-全校班级缴费人数统计 -->
+	<select id="findClassStudentCountCensus" resultType="hashMap" parameterType="java.lang.Long">
+		{
+			call p_pay_census_findClassStudentCount(
+					#{chargeTypeId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+    
+   	<!-- 统计-缴费类型人数统计 -->
+	<select id="findTypeStudentCountCensus" resultType="hashMap" parameterType="java.lang.Long">
+		{
+			call p_pay_census_findTypeStudentCount(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 统计-根据班级学生缴费情况 -->
+	<select id="findTypeStudentDetails" resultType="hashMap" parameterType="java.lang.Long">
+		{
+			call p_pay_census_findTypeStudentDetails(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+    
+   	<!-- 每日收入汇总表 -->
+	<select id="findByDate" resultMap="ChargeBill" parameterType="java.lang.String">
+		{
+			call p_pay_census_findByDate(
+					#{payDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.GradeSubjectDao">
+	
+	<!-- 年级科目关系对象 -->
+	<resultMap id="GradeSubject" type="com.cn.iscp.entity.dbase.GradeSubject">
+		<id column="ID" property="syId" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="subjectNames" property="subjectNames" jdbcType="VARCHAR" />
+		<result column="subjectCount" property="subjectCount" jdbcType="INTEGER" />
+		<result column="schoolYearTitle" property="schoolYearTitle" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- PC-查看所有年级科目列表 -->
+	<select id="findGradeSubject" resultMap="GradeSubject">
+		SELECT g.ID AS gradeID,g.gradeName,(SELECT GROUP_CONCAT(subjectName) FROM t_base_subject WHERE FIND_IN_SET(ID,gs.subjectIds) ORDER BY sort ASC) AS subjectNames
+				FROM t_base_grade AS g
+						LEFT JOIN (SELECT gradeID,GROUP_CONCAT(subjectID) AS subjectIds FROM t_dbase_gradesubject GROUP BY gradeID) AS gs ON gs.gradeID=g.ID
+				ORDER BY g.sort ASC
+	</select>
+	
+	<!-- 获取所有科目(根据年级判断是否存在) -->
+	<select id="findAllByGrade" resultMap="GradeSubject" parameterType="java.lang.Long">
+		SELECT s.ID AS subjectID,s.subjectName,
+				(SELECT COUNT(ID) FROM t_dbase_gradesubject 
+						WHERE subjectID=s.ID 
+							AND gradeID = #{gradeId,jdbcType=BIGINT} 
+				) AS subjectCount 
+			FROM t_base_subject AS s
+			WHERE `status` > 0
+			ORDER BY sort ASC
+	</select>
+	
+	<!-- 处理年级科目关系 -->
+	<select id="handleGradeSubject" parameterType="com.cn.iscp.entity.dbase.GradeSubject">
+		{
+			call p_dbase_handleGradeSubject(
+					#{gradeId,jdbcType=BIGINT,mode=IN}, 
+					#{subjectIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据年级获取科目 -->
+	<select id="findByGrade" resultMap="GradeSubject" parameterType="java.lang.Long">
+		SELECT A.subjectID,s.subjectName
+				FROM t_dbase_gradesubject AS A
+						LEFT JOIN t_base_subject AS s ON s.ID=A.subjectID
+				WHERE A.gradeID = #{gradeId,jdbcType=BIGINT}
+	</select> 
+	
+	<!-- 根据年级获取考试科目 -->
+	<select id="findExamSubjectByGrade" resultMap="GradeSubject" parameterType="java.lang.Long">
+		SELECT s.ID AS subjectID,s.subjectName
+				FROM t_dbase_gradesubject AS gs 
+						LEFT JOIN t_base_subject AS s ON s.ID=gs.subjectID 
+				WHERE gs.gradeID = #{gradeId,jdbcType=BIGINT} AND s.exemState = 1
+	</select> 
+	
+	
+	
+	
+	<!-- 保存对象
+	<insert id="insert">
+		INSERT INTO t_dbase_gradesubject(schoolYearId, gradeID, subjectID) 
+			SELECT #{schoolYearId,jdbcType=BIGINT},gradeID,subjectID FROM t_base_gradesubject
+	</insert>
+	
+	判断年度是否存在
+	<select id="getCountBySchoolYearId" resultType="java.lang.Long">
+		SELECT COUNT(ID) FROM t_dbase_gradesubject WHERE schoolYearId = #{schoolYearId,jdbcType=BIGINT}
+	</select>
+
+	查看列表
+	<select id="findPage" resultMap="GradeSubject">
+		SELECT t.schoolYearID,sy.schoolYearTitle,t.gradeID,g.gradeName,
+					(SELECT group_concat(subjectName SEPARATOR ',') 
+						FROM t_base_subject 
+						WHERE find_in_set(ID, t.subjectIds)
+					) AS subjectNames
+			FROM(
+				SELECT schoolYearID,gradeID,group_concat(subjectID SEPARATOR ',') AS subjectIds
+					FROM t_dbase_gradesubject
+					GROUP BY schoolYearID,gradeID
+					ORDER BY schoolYearID DESC,gradeID ASC
+			) AS t
+				LEFT JOIN t_base_grade AS g ON t.gradeID=g.ID
+				LEFT JOIN t_dbase_schoolyear AS sy ON sy.ID=t.schoolYearID
+			ORDER BY schoolYearID DESC, gradeID ASC
+	</select>-->
+	
+</mapper>

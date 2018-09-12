@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.UpgradeDao">
+	
+	<!-- 学年升级：1.基本信息升级 -->
+	<select id="bindingBasicInfo">
+		{
+			call p_upgrade_bindingBasicInfo()
+		}
+	</select>
+	
+	<!-- 学年升级：2.学生信息升级 -->
+	<select id="handleStudentInfo" parameterType="java.util.Map">
+		{
+			call p_upgrade_handleStudentInfo(
+					#{studentNo,jdbcType=BIGINT,mode=IN}, 
+					#{studentName,jdbcType=VARCHAR,mode=IN}, 
+					#{idCard,jdbcType=VARCHAR,mode=IN}, 
+					#{className,jdbcType=VARCHAR,mode=IN}, 
+					#{sexName,jdbcType=INTEGER,mode=IN}, 
+					#{birthday,jdbcType=VARCHAR,mode=IN}, 
+					#{nation,jdbcType=VARCHAR,mode=IN}, 
+					#{nativePlace,jdbcType=VARCHAR,mode=IN}, 
+					#{fatherName,jdbcType=VARCHAR,mode=IN}, 
+					#{fatherCard,jdbcType=VARCHAR,mode=IN}, 
+					#{motherName,jdbcType=VARCHAR,mode=IN}, 
+					#{motherCard,jdbcType=VARCHAR,mode=IN}, 
+					#{contactNumber,jdbcType=VARCHAR,mode=IN}, 
+					#{liveAddress,jdbcType=VARCHAR,mode=IN}, 
+					#{admissionDate,jdbcType=VARCHAR,mode=IN}, 
+					#{isNewStudentName,jdbcType=VARCHAR,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 学年升级：3.统计升级信息 -->
+	<select id="censusHavingInfo">
+		{
+			call p_upgrade_censusHavingInfo()
+		}
+	</select>
+	
+</mapper>

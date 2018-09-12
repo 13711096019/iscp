@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.TeacherSubjectDao">
+	
+	<!-- 教员科目关系对象 -->
+	<resultMap id="TeacherSubject" type="com.cn.iscp.entity.dbase.TeacherSubject">
+		<id column="ID" property="tsId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="teacherID" property="teacherId" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="createDate" property="createDate" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="teacherMobile" property="teacherMobile" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- PC-根据动态班级编号获取任课教师列表 -->
+	<select id="findByClassNum" resultMap="TeacherSubject" parameterType="java.lang.Long">
+		{
+			call p_dbase_findTeacherSubject(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-处理教师科目  -->
+	<select id="handleTeacherSubject" statementType="CALLABLE" resultMap="TeacherSubject" 
+				parameterType="com.cn.iscp.entity.dbase.TeacherSubject">
+		{
+			call p_dbase_handleTeacherSubject(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{subjectId,jdbcType=BIGINT,mode=IN}, 
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 老师端-获取教师任教班级列表  -->
+	<select id="findTeachClass" statementType="CALLABLE" resultType="hashMap" parameterType="java.lang.Long">
+		{
+			call p_dbase_findTeachClass(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 工作-根据老师编号获取任课班级和科目列表  -->
+	<select id="findClassByTeacher" resultMap="TeacherSubject" parameterType="java.lang.Long">
+		{
+			call p_dbase_teachersubject_findClassByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 工作-根据老师编号获取任课班级和科目  -->
+	<select id="findSubjectByTeacher" resultMap="TeacherSubject" parameterType="java.lang.Long">
+		{
+			call p_dbase_teachersubject_findSubjectByTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据科目编号获取老师列表  -->
+	<select id="findTeacherBySubject" resultMap="TeacherSubject" parameterType="java.lang.Long">
+		SELECT ts.teacherID,t.teacherName
+			FROM t_base_teachersubject AS ts
+					LEFT JOIN t_base_teacher AS t ON t.ID=ts.teacherID
+			WHERE ts.subjectID = #{subjectId,jdbcType=BIGINT,mode=IN} AND ts.`status` = 1 
+			ORDER BY ts.teacherID ASC
+	</select>
+	
+	<!-- PC-判断老师是否为该年级该科目的科任老师 -->
+	<select id="judgeSubjectTeacher" resultType="java.lang.Long" parameterType="com.cn.iscp.entity.dbase.TeacherSubject">
+		SELECT COUNT(ts.ID)
+				FROM t_dbase_teachersubject AS ts
+						LEFT JOIN t_dbase_classentityupgrade AS cu ON cu.ID=ts.classEntityUpgradeID
+				WHERE ts.teacherID = #{teacherId,jdbcType=BIGINT,mode=IN}
+					AND ts.subjectID = #{subjectId,jdbcType=BIGINT,mode=IN} 
+					AND cu.gradeID = #{gradeId,jdbcType=BIGINT,mode=IN}
+	</select>
+	
+	<!-- PC-根据动态班级编号和科目编号获取班级名称,科任老师姓名 -->
+	<select id="getSubjectTeacher" resultType="hashMap" parameterType="java.util.Map">
+		SELECT c.className,t.teacherName
+			FROM t_dbase_classentityupgrade AS A
+						LEFT JOIN t_base_class AS c ON c.ID=A.classID
+						LEFT JOIN t_dbase_teachersubject AS ts ON ts.classEntityUpgradeID=A.ID 
+								AND ts.subjectID=#{subjectId,jdbcType=BIGINT}
+						LEFT JOIN t_base_teacher AS t ON t.ID=ts.teacherID
+			WHERE A.ID = #{classNum,jdbcType=BIGINT}
+	</select>
+	
+</mapper>

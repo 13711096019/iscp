@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamScoreDao">
+	
+	<!-- 测验成绩信息对象 -->
+	<resultMap id="ExamScoreInput" type="com.cn.iscp.entity.card.exam.ExamScoreInput">
+		<id column="ID" property="scoreId" jdbcType="BIGINT" />
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="examPaperID" property="examPaperId" jdbcType="BIGINT" />
+		<!-- <result column="examID" property="examId" jdbcType="BIGINT" /> -->
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="examResult" property="examResult" jdbcType="DOUBLE" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_examscoreinput </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.examInfoID, A.examPaperID, A.studentID, A.examResult, A.note
+	</sql>
+	
+	<!-- PC-获取班级学生成绩信息 -->
+	<select id="findExamScore" resultMap="ExamScoreInput" parameterType="java.util.Map">
+		SELECT s.ID AS studentID,s.studentNum,s.`name` AS studentName,e.examResult 
+				FROM t_base_student AS s
+						LEFT JOIN t_card_examscoreinput AS e ON e.studentID=s.ID 
+								AND e.examPaperID = #{examPaperId,jdbcType=BIGINT} 
+				WHERE s.classEntityID = #{classEntityId,jdbcType=BIGINT} AND s.`status` = 1 
+				ORDER BY CONVERT(IFNULL(s.studentNum,1), SIGNED) ASC,s.ID ASC
+	</select>
+	
+	<!-- PC-处理学生成绩 -->
+	<select id="handleExamScore" statementType="CALLABLE" parameterType="com.cn.iscp.entity.card.exam.ExamScoreInput">
+		{
+			call p_card_exam_handleExamScore(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{examPaperId,jdbcType=BIGINT,mode=IN},
+					#{examResults,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	<!-- 测验成绩信息对象 -->
+	<resultMap id="ExamScore" type="com.cn.iscp.model.ExamScore">
+		<result column="rowNum" property="rowNum" jdbcType="INTEGER" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="chineseResult" property="chineseResult" jdbcType="DOUBLE" />
+		<result column="mathResult" property="mathResult" jdbcType="DOUBLE" />
+		<result column="englishResult" property="englishResult" jdbcType="DOUBLE" />
+		<result column="moralityResult" property="moralityResult" jdbcType="DOUBLE" />
+		<result column="historyResult" property="historyResult" jdbcType="DOUBLE" />
+		<result column="biologyResult" property="biologyResult" jdbcType="DOUBLE" />
+		<result column="geographyResult" property="geographyResult" jdbcType="DOUBLE" />
+		<result column="physicsResult" property="physicsResult" jdbcType="DOUBLE" />
+		<result column="chemistryResult" property="chemistryResult" jdbcType="DOUBLE" />
+		<result column="totalResult" property="totalResult" jdbcType="DOUBLE" />
+		<result column="rankClass" property="rankClass" jdbcType="INTEGER" />
+		<result column="rankGrade" property="rankGrade" jdbcType="INTEGER" />
+		
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<!-- 终端-获取学生排名 -->
+	<select id="findRankingStudent" resultMap="ExamScore" parameterType="java.lang.Long">
+		{
+			call p_card_exam_findRankingStudent(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

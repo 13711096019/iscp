@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.ClockOndayClassDao">
+	
+	<!-- 班级每日考勤统对象 -->
+	<resultMap id="ClockOndayClass" type="com.cn.iscp.entity.card.ClockOndayClass">
+		<id column="ID" property="clockId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="clockOnDate" property="clockOnDate" jdbcType="VARCHAR" />
+		<result column="clockLocationID" property="clockLocationId" jdbcType="INTEGER" />
+		<result column="studentCount" property="studentCount" jdbcType="INTEGER" />
+		<result column="clockOnCount" property="clockOnCount" jdbcType="INTEGER" />
+		<result column="arriveInTimeCount" property="arriveInTimeCount" jdbcType="INTEGER" />
+		<result column="arriveLateCount" property="arriveLateCount" jdbcType="INTEGER" />
+		<result column="leaveEarlyCount" property="leaveEarlyCount" jdbcType="INTEGER" />
+		<result column="askForLeaveCount" property="askForLeaveCount" jdbcType="INTEGER" />
+		<result column="absenteeism" property="absenteeism" jdbcType="INTEGER" />
+		<result column="clockForgetCount_morning" property="clockForgetCountMorning" jdbcType="INTEGER" />
+		<result column="clockForgetCount_afternoon" property="clockForgetCountAfternoon" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_clockonday_class </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.schoolYearID, A.termID, A.month, A.classEntityUpgradeID, 
+		A.clockOnDate, A.clockLocationID, A.studentCount, A.clockOnCount, 
+		A.arriveInTimeCount, A.arriveLateCount, A.leaveEarlyCount, 
+		A.askForLeaveCount, A.absenteeism, A.clockForgetCount_morning, 
+		A.clockForgetCount_afternoon
+	</sql>
+	
+	<!-- 终端-根据日期获取班级考勤情况  -->
+	<select id="findByDate" resultMap="ClockOndayClass" parameterType="com.cn.iscp.entity.card.ClockOndayClass">
+		{
+			call p_dbase_coursetable_findByClassNum(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{clockOnDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-获取最近一个月班级情况  -->
+	<select id="findByLastMonth" resultMap="ClockOndayClass" parameterType="java.lang.Long">
+		{
+			call p_card_clockonday_class_findByLastMonth(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 终端-按日期统计班级考勤 -->
+	<select id="censusClassAttendance" resultMap="ClockOndayClass" parameterType="com.cn.iscp.entity.card.ClockOndayClass">
+		{
+			call p_card_clockonday_class_handle(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{clockOnDate,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 定时器-统计班级考勤情况 -->
+	<select id="handleClassClockonday" resultType="java.lang.Integer">
+		{
+			call p_timer_handleClockondayClass()
+		}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeSeatingDao">
+	
+	<!-- 对象 -->
+	<resultMap id="ChargeSeating" type="com.cn.iscp.entity.pay.ChargeSeating">
+		<id column="ID" property="seatingId" jdbcType="BIGINT" />
+		<id column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="orderID" property="orderId" jdbcType="BIGINT" />
+		<result column="rowNo" property="rowNo" jdbcType="INTEGER" />
+		<result column="colNo" property="colNo" jdbcType="INTEGER" />
+		<result column="payStatus" property="payStatus" jdbcType="INTEGER" />
+		<result column="payGrade" property="payGrade" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		<result column="idCard" property="idCard" jdbcType="VARCHAR" />
+		<result column="liveAddress" property="liveAddress" jdbcType="VARCHAR" />
+		
+	</resultMap>
+	
+	<sql id="TableName"> t_pay_chargeseating </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.studentID, A.classEntityUpgradeID, A.orderID, A.rowNo, A.colNo, A.payStatus, A.payGrade
+	</sql>
+	
+	<!-- 根据学生获取班级缴费座位表 -->
+	<select id="findByStudent" resultMap="ChargeSeating" parameterType="com.cn.iscp.entity.pay.ChargeSeating">
+		{
+			call p_pay_chargeseating_findByStudent(
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{orderId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="ChargeSeating" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />,s.className,p.name AS studentName,p.sexId,p.idCard,p.liveAddress,g.title
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_pay_chargeorder AS g ON g.ID=A.orderID
+			LEFT JOIN t_base_student AS p ON p.ID=A.studentID
+			LEFT JOIN t_dbase_classentityupgrade AS ce ON ce.ID=A.classEntityUpgradeID
+			LEFT JOIN t_base_class AS s ON s.ID = ce.classID
+			WHERE A.status =1 AND A.orderID = ${orderId} 
+			AND (A.payGrade LIKE '${statName}'OR p.name LIKE '${statName}' OR p.liveAddress LIKE '${statName}'
+			     OR p.idCard LIKE '${statName}')
+			ORDER BY A.ID  
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status =1 AND A.orderID = ${orderId} 
+			AND (A.payGrade LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ChargeSeating" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,s.className,p.name AS studentName,p.sexId,p.idcard,p.liveAddress,g.title 
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_pay_chargeorder AS g ON g.ID=A.orderID
+			LEFT JOIN t_base_student AS p ON p.ID=A.studentID
+			LEFT JOIN t_dbase_classentityupgrade AS ce ON ce.ID=A.classEntityUpgradeID
+			LEFT JOIN t_base_class AS s ON s.ID = ce.classID
+			WHERE A.status =1  AND  A.ID = #{seatingId,jdbcType=BIGINT}
+	</select>
+
+    <!-- 根据学生编号和工单编号获取详情 -->	
+    <select id="findparticularsById" resultMap="ChargeSeating" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,s.className,p.name AS studentName,p.sexId,p.idCard,p.liveAddress,g.title 
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_pay_chargeorder AS g ON g.ID=A.orderID
+			LEFT JOIN t_base_student AS p ON p.ID=A.studentID
+			LEFT JOIN t_dbase_classentityupgrade AS ce ON ce.ID=A.classEntityUpgradeID
+			LEFT JOIN t_base_class AS s ON s.ID = ce.classID
+			WHERE A.status =1 AND  A.studentID = #{studentId,jdbcType=BIGINT} AND  A.orderID = #{orderId,jdbcType=BIGINT}
+	</select>
+	 <!-- 根据学生编号获取列表 -->	
+    <select id="findstudentById" resultMap="ChargeSeating" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,s.className,p.name AS studentName,p.sexId,p.idCard,p.liveAddress,g.title 
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_pay_chargeorder AS g ON g.ID=A.orderID
+			LEFT JOIN t_base_student AS p ON p.ID=A.studentID
+			LEFT JOIN t_dbase_classentityupgrade AS ce ON ce.ID=A.classEntityUpgradeID
+			LEFT JOIN t_base_class AS s ON s.ID = ce.classID
+			WHERE A.status =1 AND  A.studentID = #{0,jdbcType=BIGINT}
+	</select>
+</mapper>

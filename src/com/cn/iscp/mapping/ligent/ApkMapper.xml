@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.ligent.ApkDao">
+	
+	<resultMap id="Apk" type="com.cn.iscp.entity.ligent.Apk">
+		<id column="ID" property="apkId" jdbcType="BIGINT" />
+		<result column="versionType" property="versionType" jdbcType="BIGINT" />
+		<result column="versionNum" property="versionNum" jdbcType="VARCHAR" />
+		<result column="versionCode" property="versionCode" jdbcType="INTEGER" />
+		<result column="versionPack" property="versionPack" jdbcType="VARCHAR" />
+		<result column="createDate" property="createDate" jdbcType="VARCHAR" />
+		<result column="versionUrl" property="versionUrl" jdbcType="VARCHAR" />
+		<result column="versionSize" property="versionSize" jdbcType="BIGINT" />
+		<result column="versionDesc" property="versionDesc" jdbcType="VARCHAR" />
+		<result column="isMust" property="isMust" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_ligent_apk </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.versionType, A.versionNum, A.versionCode, A.versionPack, 
+		A.createDate, A.versionUrl, A.versionSize, A.versionDesc, A.isMust
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="Apk" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			ORDER BY A.ID DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long">
+		SELECT COUNT(A.ID) FROM <include refid="TableName" /> AS A
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Apk" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE ID = #{apkId, jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据版本号获取对象 -->
+	<select id="getModleByNum" resultMap="Apk">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+		WHERE versionNum = #{versionNum, jdbcType=VARCHAR}
+	</select>
+
+	<!-- 获取最新一条数据 -->
+	<select id="getLastModle" resultMap="Apk" parameterType="java.lang.Integer">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.versionType = #{versionType, jdbcType=INTEGER}
+			ORDER BY A.ID DESC
+			LIMIT 0,1;
+	</select>
+	
+	<!-- 新增APK -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.ligent.Apk">
+		INSERT INTO <include refid="TableName" /> (versionType, versionNum, versionCode, 
+				versionPack, createDate, versionUrl, versionSize, versionDesc, isMust)
+			VALUES (#{versionType, jdbcType=BIGINT}, #{versionNum, jdbcType=VARCHAR}, 
+				#{versionCode, jdbcType=INTEGER}, #{versionPack, jdbcType=VARCHAR}, 
+				#{createDate, jdbcType=VARCHAR}, #{versionUrl, jdbcType=VARCHAR}, 
+				#{versionSize, jdbcType=BIGINT}, #{versionDesc, jdbcType=VARCHAR},
+				#{isMust, jdbcType=INTEGER})
+	</insert>
+	
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.SeatingChartDao">
+	
+	<!-- 座位表对象 -->
+	<resultMap id="SeatingChart" type="com.cn.iscp.entity.dbase.SeatingChart">
+		<id column="ID" property="seatingId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="rowNo" property="rowNo" jdbcType="INTEGER" />
+		<result column="colNo" property="colNo" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="bigGroupID" property="bigGroupId" jdbcType="INTEGER" />
+		<result column="smallGroupID" property="smallGroupId" jdbcType="INTEGER" />
+		
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="sexId" property="sexId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_dbase_seatingchart </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.studentID, A.rowNo, A.colNo, A.status, A.note, A.bigGroupID, A.smallGroupID
+	</sql>
+	
+	<!-- PC-根据班级动态编号获取数据 -->
+	<select id="findByClass" resultMap="SeatingChart" parameterType="java.lang.Long">
+		SELECT A.rowNo,A.colNo,A.smallGroupID,A.studentID,s.`name` AS studentName
+			FROM t_dbase_seatingchart AS A
+						LEFT JOIN t_base_student AS s ON s.ID=A.studentID
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT} AND s.`status` > 0
+			ORDER BY rowNo ASC, colNo ASC
+	</select>
+	
+	<!-- PC-处理班级座位表 -->
+	<select id="handleSeatingChart" statementType="CALLABLE" parameterType="com.cn.iscp.entity.dbase.SeatingChart">
+		{
+			call p_dbase_handleSeatingChart(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studentNames,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-处理班级小组 -->
+	<select id="handleSeatingGroup" statementType="CALLABLE" parameterType="com.cn.iscp.entity.dbase.SeatingChart">
+		{
+			call p_dbase_handleSeatingGroup(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{studentNames,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 终端-获取座位表 -->
+	<select id="findSeatingChart" resultMap="SeatingChart" parameterType="java.lang.Long">
+		SELECT s.rowNo,s.colNo,t.`name` AS studentName,t.studentNum FROM t_dbase_seatingchart_session AS s
+					LEFT JOIN t_dbase_seatingchart AS c ON s.rowNo=c.rowNo AND s.colNo=c.colNo
+							 AND c.classEntityUpgradeID = #{classNum,jdbcType=BIGINT}
+					LEFT JOIN t_base_student AS t ON t.ID=c.studentID
+			WHERE s.rowNo &lt; 8 AND s.colNo &lt; 8
+			ORDER BY s.rowNo ASC, s.colNo ASC
+	</select>
+	
+	<!-- PC-根据小组编号获取学生列表 -->
+	<select id="findStudentByGroup" resultMap="SeatingChart" parameterType="com.cn.iscp.entity.dbase.SeatingChart">
+		SELECT A.studentID, s.`name` AS studentName, s.sexID 
+			FROM t_dbase_seatingchart AS A
+					LEFT JOIN t_base_student AS s ON s.ID=A.studentID
+			WHERE A.classEntityUpgradeID = #{classNum,jdbcType=BIGINT} 
+				AND smallGroupID = #{smallGroupId,jdbcType=INTEGER}
+			ORDER BY A.studentID ASC
+	</select>
+	
+	
+</mapper>

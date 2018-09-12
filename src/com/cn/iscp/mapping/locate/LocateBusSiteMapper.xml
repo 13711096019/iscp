@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.locate.LocateBusSiteDao">
+	
+    <!-- 收费统计 -->
+    <resultMap id="LocateBusSite" type="com.cn.iscp.entity.locate.LocateBusSite">
+      <id column="ID" property="siteId" jdbcType="BIGINT"/>
+      <result column="busID" property="busId" jdbcType="INTEGER"/>
+      <result column="siteName" property="siteName" jdbcType="VARCHAR"/>
+      <result column="totalPrice" property="totalPrice" jdbcType="INTEGER"/>
+      <result column="sort" property="sort" jdbcType="INTEGER"/>
+      <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="TableName">t_locate_bussite</sql>
+    
+    <sql id="ColumnList">
+      	A.ID, A.busID, A.siteName, A.totalPrice, A.sort, A.status
+    </sql>
+    
+   	<!-- 根据编号获取站点信息 -->
+	<select id="findById" resultMap="LocateBusSite" parameterType="java.lang.Long">
+		{
+			call p_locate_bussite_findById(
+					#{siteId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+    
+   	<!-- 根据校车获取站点信息 -->
+	<select id="findByBus" resultMap="LocateBusSite" parameterType="java.lang.Long">
+		{
+			call p_locate_bussite_findByBus(
+					#{busId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="LocateBusSite" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND A.busID = ${busId} AND (A.siteName LIKE '${statName}')
+			ORDER BY A.sort  
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status = 1 AND A.busID = ${busId} AND (A.siteName LIKE '${statName}')
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="LocateBusSite">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` =1
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.locate.LocateBusSite">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="siteId != null">
+				ID,
+			</if>
+			<if test="busId != null">
+				busId,
+			</if>
+			<if test="siteName != null &amp;&amp; siteName != ''">
+				siteName,
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				totalPrice,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="siteId != null">
+				#{siteId,jdbcType=BIGINT},
+			</if>
+			<if test="busId != null">
+				#{busId,jdbcType=BIGINT},
+			</if>
+			<if test="siteName != null &amp;&amp; siteName != ''">
+				#{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				#{totalPrice,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.locate.LocateBusSite">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="siteName != null &amp;&amp; siteName != ''">
+				siteName = #{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="totalPrice != null &amp;&amp; totalPrice != ''">
+				totalPrice = #{totalPrice,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			
+		</set>
+		WHERE ID = #{siteId,jdbcType=BIGINT}
+	</update>
+</mapper>

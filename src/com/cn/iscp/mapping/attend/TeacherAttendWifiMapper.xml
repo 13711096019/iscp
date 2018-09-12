@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendWifiDao">
+	
+	<!-- wifi考勤 -->
+	<resultMap id="TeacherAttendWifi" type="com.cn.iscp.entity.attend.TeacherAttendWifi">
+		<id column="ID" property="wifiId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="wifiName" property="wifiName" jdbcType="VARCHAR" />
+		<result column="wifiIp" property="wifiIp" jdbcType="VARCHAR" />
+		<result column="wifiMac" property="wifiMac" jdbcType="VARCHAR" />
+		<result column="wifiPin" property="wifiPin" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendwifi </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.groupID, A.wifiName, A.wifiIp, A.wifiMac, A.wifiPin, A.status
+	</sql>
+	
+	
+	<!-- 根据考勤组获取考勤地点  -->
+	<select id="findByGroup" resultMap="TeacherAttendWifi" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendwifi_findByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	<!-- 新增wifi考勤  -->
+	<select id="insertWifi" resultMap="TeacherAttendWifi" parameterType="com.cn.iscp.entity.attend.TeacherAttendWifi">
+		{
+			call p_attend_teacherattendwifi_insert(
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{wifiName,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiIp,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiMac,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiPin,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑wifi考勤  -->
+	<select id="updateWifi" resultMap="TeacherAttendWifi" parameterType="com.cn.iscp.entity.attend.TeacherAttendWifi">
+		{
+			call p_attend_teacherattendwifi_update(
+					#{wifiId,jdbcType=BIGINT,mode=IN}, 
+					#{wifiName,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiIp,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiMac,jdbcType=VARCHAR,mode=IN}, 
+					#{wifiPin,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除wifi考勤  -->
+	<select id="deleteWifi" resultMap="TeacherAttendWifi" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendwifi_delete(
+					#{wifiId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据考勤组删除考勤wifi  -->
+	<select id="deleteByGroup" parameterType="java.lang.Long">
+		{
+			call p_attend_teacherattendwifi_deleteByGroup(
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

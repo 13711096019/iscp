@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.SessionDao">
+	
+	<!-- 每日上课节次对象 -->
+	<resultMap id="Session" type="com.cn.iscp.entity.base.Session">
+		<id column="ID" property="sessionId" jdbcType="BIGINT" />
+		<result column="sessionName" property="sessionName" jdbcType="VARCHAR" />
+		<result column="startTime" property="startTime" jdbcType="VARCHAR" />
+		<result column="endTime" property="endTime" jdbcType="VARCHAR" />
+		<result column="isTeacherSession" property="isTeacherSession" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_session </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.sessionName, A.startTime, A.endTime, A.isTeacherSession, A.sort, A.note, A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="Session" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` >= 0 AND A.sessionName LIKE '${statName}'
+			ORDER BY A.sort ASC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) FROM <include refid="TableName" /> AS A
+			WHERE A.`status` >= 0 AND A.sessionName LIKE '${statName}'
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Session" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.ID = #{sessionId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Session">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A
+			WHERE A.`status` > 0
+			ORDER BY A.ID DESC 
+			LIMIT 0,1
+	</select>
+	
+	<!-- 按条件获取信息列表 -->
+	<select id="findAll" resultMap="Session">
+		SELECT <include refid="ColumnList" /> 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.`status` > 0
+			ORDER BY A.sort ASC 
+	</select>
+	
+	<!-- 保存对象 -->
+	<insert id="insert" parameterType="com.cn.iscp.entity.base.Session">
+		INSERT INTO <include refid="TableName" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sessionName != null &amp;&amp; sessionName != ''">
+				sessionName,
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime,
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime,
+			</if>
+			<if test="isTeacherSession != null">
+				isTeacherSession,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="flagtime != null">
+				flagtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sessionName != null &amp;&amp; sessionName != ''">
+				#{sessionName,jdbcType=VARCHAR},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				#{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				#{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="isTeacherSession != null">
+				#{isTeacherSession,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				#{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				#{flagtime,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Session">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="sessionName != null &amp;&amp; sessionName != ''">
+				sessionName = #{sessionName,jdbcType=VARCHAR},
+			</if>
+			<if test="startTime != null &amp;&amp; startTime != ''">
+				startTime = #{startTime,jdbcType=VARCHAR},
+			</if>
+			<if test="endTime != null &amp;&amp; endTime != ''">
+				endTime = #{endTime,jdbcType=VARCHAR},
+			</if>
+			<if test="isTeacherSession != null">
+				isTeacherSession = #{isTeacherSession,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{sessionId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.exam.ExamPaperDao">
+	
+	<!-- 试卷试卷信息对象 -->
+	<resultMap id="ExamPaper" type="com.cn.iscp.entity.card.exam.ExamPaper">
+		<id column="ID" property="examPaperId" jdbcType="BIGINT" />
+		<result column="examInfoID" property="examInfoId" jdbcType="BIGINT" />
+		<result column="gradeID" property="gradeId" jdbcType="BIGINT" />
+		<result column="subjectID" property="subjectId" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="moniterTeach" property="moniterTeach" jdbcType="VARCHAR" />
+		<result column="fullScore" property="fullScore" jdbcType="INTEGER" />
+		<result column="excellentScore" property="excellentScore" jdbcType="INTEGER" />
+		<result column="passScore" property="passScore" jdbcType="INTEGER" />
+		<result column="examTime" property="examTime" jdbcType="VARCHAR" />
+		<result column="startTime" property="startTime" jdbcType="VARCHAR" />
+		<result column="endTime" property="endTime" jdbcType="VARCHAR" />
+		<result column="minutesCountOfExam" property="minutesCountOfExam" jdbcType="INTEGER" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="examPaperState" property="examPaperState" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="allowPush" property="allowPush" jdbcType="INTEGER" />
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+		<result column="examTypeName" property="examTypeName" jdbcType="VARCHAR" />
+		<result column="classNo" property="classNo" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_exampaper </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.examInfoID, A.gradeID, A.subjectID, A.title, A.moniterTeach, A.fullScore, 
+		A.excellentScore, A.passScore, A.examTime, A.startTime, A.endTime, A.minutesCountOfExam, 
+		A.createTime, A.examPaperState, A.status, A.note
+	</sql>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ExamPaper" parameterType="java.lang.Long">
+		SELECT ep.*,s.subjectName,g.gradeName,ei.allowPush,it.itemFileName AS examTypeName 
+			FROM t_card_exampaper AS ep 
+				LEFT JOIN t_base_grade AS g ON g.ID=ep.gradeID 
+				LEFT JOIN t_base_subject AS s ON s.ID=ep.subjectID 
+				LEFT JOIN t_card_examinfo AS ei ON ei.ID=ep.examInfoID 
+				LEFT JOIN t_base_itemfile AS it ON it.ID=ei.examType AND it.itemDirID = 2 
+			WHERE ep.ID = #{examPaperId,jdbcType=BIGINT} 
+	</select>
+	
+	<!-- 根据考试信息编号获取试卷列表 -->
+	<select id="findByInfo" resultMap="ExamPaper" parameterType="java.lang.Long">
+		SELECT ep.*,s.subjectName 
+			FROM t_card_exampaper AS ep 
+					LEFT JOIN t_base_subject AS s ON s.ID=ep.subjectID 
+			WHERE ep.examInfoID = #{examInfoId,jdbcType=BIGINT} 
+			ORDER BY s.sort ASC
+	</select>
+	
+	<!-- 编辑试卷信息 -->
+	<select id="updateExamPaper" resultMap="ExamPaper" parameterType="com.cn.iscp.entity.card.exam.ExamPaper">
+		{
+			call p_card_exampaper_update(
+					#{examPaperId,jdbcType=BIGINT,mode=IN},
+					#{moniterTeach,jdbcType=VARCHAR,mode=IN},
+					#{examTime,jdbcType=VARCHAR,mode=IN},
+					#{startTime,jdbcType=VARCHAR,mode=IN},
+					#{endTime,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.StudentLeaveRecordDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 请假信息记录 -->
+	<resultMap id="StudentLeaveRecord" type="com.cn.iscp.entity.attend.StudentLeaveRecord">
+		<id column="ID" property="leaveId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="leaveStartDate" property="leaveStartDate" jdbcType="VARCHAR" />
+		<result column="leaveEndDate" property="leaveEndDate" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="VARCHAR" />
+		<result column="leaveDayCount" property="leaveDayCount" jdbcType="INTEGER" />
+		<result column="leaveReason" property="leaveReason" jdbcType="VARCHAR" />
+		<result column="leaveState" property="leaveState" jdbcType="INTEGER" />
+		
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="pageCount" property="pageCount" jdbcType="INTEGER" />
+		<result column="isClassTeacher" property="isClassTeacher" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 公共实体类 -->
+	<resultMap id="Artascope" type="com.cn.iscp.model.Artascope">
+		<result column="recordsCount" property="recordsCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_studentleaverecord </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.schoolYearID, A.termID, userID, 
+		A.leaveStartDate, A.leaveEndDate, A.createTime, A.leaveDayCount, 
+		A.leaveReason, A.leaveState
+	</sql>
+	
+	<!-- 分页获取学生请假记录 -->
+	<select id="findByPage" statementType="CALLABLE" resultMap="Artascope,StudentLeaveRecord" parameterType="java.util.Map">
+		{
+			call p_attend_studentleaverecord_findByPageTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{statName,jdbcType=VARCHAR,mode=IN}, 
+					#{startRecord,jdbcType=INTEGER,mode=IN},
+					#{pageSize,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 用户请假  -->
+	<select id="insertLeave" resultMap="StudentLeaveRecord" parameterType="com.cn.iscp.entity.attend.StudentLeaveRecord">
+		{
+			call p_attend_studentleaverecord_insert(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{leaveStartDate,jdbcType=VARCHAR,mode=IN}, 
+					#{leaveEndDate,jdbcType=VARCHAR,mode=IN}, 
+					#{leaveDayCount,jdbcType=INTEGER,mode=IN}, 
+					#{leaveReason,jdbcType=VARCHAR,mode=IN}, 
+					#{leaveState,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据学生编号获取最近请假记录  -->
+	<select id="findByStudent" resultMap="StudentLeaveRecord" parameterType="com.cn.iscp.entity.attend.StudentLeaveRecord">
+		{
+			call p_attend_studentleaverecord_findByStudent(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{pageCount,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据老师编号获取请假记录  -->
+	<select id="findByTeacher" resultMap="StudentLeaveRecord" parameterType="java.util.Map">
+		{
+			call p_attend_studentleaverecord_findByTeacher(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{roleType,jdbcType=INTEGER,mode=IN}, 
+					#{recordType,jdbcType=INTEGER,mode=IN}, 
+					#{pageCount,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据动态班级编号获取最近学生请假记录  -->
+	<select id="findByClass" resultMap="StudentLeaveRecord" parameterType="com.cn.iscp.entity.attend.StudentLeaveRecord">
+		{
+			call p_attend_studentleaverecord_findByClass(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{leaveState,jdbcType=INTEGER,mode=IN}, 
+					#{pageCount,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改请假记录状态为已查阅  -->
+	<select id="updateState" resultMap="StateModel" parameterType="com.cn.iscp.entity.attend.StudentLeaveRecord">
+		{
+			call p_attend_studentleaverecord_updateState(
+					#{leaveId,jdbcType=BIGINT,mode=IN}, 
+					#{userId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.attend.TeacherAttendTempletDao">
+	
+	<!-- 老师考勤班次模板表 -->
+	<resultMap id="TeacherAttendTemplet" type="com.cn.iscp.entity.attend.TeacherAttendTemplet">
+		<id column="ID" property="templetId" jdbcType="BIGINT" />
+		<result column="userID" property="userId" jdbcType="BIGINT" />
+		<result column="groupID" property="groupId" jdbcType="BIGINT" />
+		<result column="shiftID" property="shiftId" jdbcType="BIGINT" />
+		<result column="weekNum" property="weekNum" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_attend_teacherattendtemplet </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.userID, A.groupID, A.shiftID, A.weekNum
+	</sql>
+	
+	<!-- 根据老师编号获取考勤班次模板  -->
+	<select id="findByUser" resultType="hashMap" parameterType="com.cn.iscp.entity.attend.TeacherAttendTemplet">
+		{
+			call p_attend_teacherattendtemplet_findByUser(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改考勤班次模板  -->
+	<select id="updateTemplet" resultMap="TeacherAttendTemplet" parameterType="com.cn.iscp.entity.attend.TeacherAttendTemplet">
+		{
+			call p_attend_teacherattendtemplet_update(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{groupId,jdbcType=BIGINT,mode=IN}, 
+					#{shiftId,jdbcType=BIGINT,mode=IN}, 
+					#{weekNum,jdbcType=INTEGER,mode=IN}, 
+					#{isUpdScheduling,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据周期修改考勤班次模板  -->
+	<select id="updateByCycle" parameterType="com.cn.iscp.entity.attend.TeacherAttendTemplet">
+		{
+			call p_attend_teacherattendtemplet_updateByCycle(
+					#{userId,jdbcType=BIGINT,mode=IN}, 
+					#{cycleId,jdbcType=BIGINT,mode=IN}, 
+					#{isUpdScheduling,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.attend.TeacherAttendTemplet">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="shiftId != null">
+				shiftID = #{shiftId,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE groupID = #{groupId,jdbcType=INTEGER} AND weekNum = #{weekNum,jdbcType=INTEGER}
+	</update>
+	
+</mapper>

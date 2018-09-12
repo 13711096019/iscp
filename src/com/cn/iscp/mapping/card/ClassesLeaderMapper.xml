@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.ClassesLeaderDao">
+	
+	<!-- 班级动态学期班干部对象 -->
+	<resultMap id="ClassesLeader" type="com.cn.iscp.entity.card.ClassesLeader">
+		<id column="ID" property="classesLeaderId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="classLeaderID" property="classLeaderId" jdbcType="BIGINT" />
+		<result column="studentID" property="studentId" jdbcType="BIGINT" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="classLeaderName" property="classLeaderName" jdbcType="VARCHAR" />
+		<result column="studentName" property="studentName" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="dutyDesc" property="dutyDesc" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="TableName"> t_card_classleader </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.classEntityUpgradeID, A.classLeaderID, A.studentID, A.note
+	</sql>
+	
+	<!-- 终端-根据班级获取班干部列表 -->
+	<select id="findByClass" resultMap="ClassesLeader" parameterType="java.util.Map">
+		{
+			call p_card_getClassLeader(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{classLeaderType,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-根据班级分类获取班干部列表 -->
+	<select id="findClassLeader" statementType="CALLABLE" resultMap="ClassesLeader,ClassesLeader,ClassesLeader" parameterType="java.lang.Long">
+		{
+			call p_card_findClassLeader(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-分配学生班干部 -->
+	<select id="handleClassLeader" resultMap="ClassesLeader" parameterType="com.cn.iscp.entity.card.ClassesLeader">
+		{
+			call p_card_handleClassLeader(
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{classLeaderId,jdbcType=BIGINT,mode=IN},
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>

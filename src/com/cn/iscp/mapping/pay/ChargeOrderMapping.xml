@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.pay.ChargeOrderDao">
+	
+	<!-- 状态对象 -->
+	<resultMap id="StateModel" type="com.cn.iscp.model.StateModel">
+		<result column="keyId" property="keyId" jdbcType="BIGINT" />
+		<result column="statusCode" property="statusCode" jdbcType="INTEGER" />
+		<result column="statusHint" property="statusHint" jdbcType="VARCHAR" />
+	</resultMap>
+	
+    <!-- 收费中心 -->
+    <resultMap id="ChargeOrder" type="com.cn.iscp.entity.pay.ChargeOrder">
+       <id column="ID" property="orderId" jdbcType="BIGINT"/>
+       <result column="createTime" property="createTime" jdbcType="VARCHAR"/>
+       <result column="createUserID" property="createUserId" jdbcType="BIGINT"/>
+       <result column="startDate" property="startDate" jdbcType="VARCHAR"/>
+       <result column="endDate" property="endDate" jdbcType="VARCHAR"/>
+       <result column="chargeTypeIds" property="chargeTypeIds" jdbcType="VARCHAR"/>
+       <result column="gradeID" property="gradeId" jdbcType="BIGINT"/>
+       <result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT"/>
+       <result column="termID" property="termId" jdbcType="BIGINT"/>
+       <result column="principal" property="principal" jdbcType="VARCHAR"/>
+       <result column="phone" property="phone" jdbcType="VARCHAR"/>
+       <result column="title" property="title" jdbcType="VARCHAR"/>
+       <result column="content" property="content" jdbcType="VARCHAR"/>
+       <result column="publishStatus" property="publishStatus" jdbcType="INTEGER"/>
+       <result column="status" property="status" jdbcType="INTEGER"/>
+       
+       <result column="gradeName" property="gradeName" jdbcType="VARCHAR"/>
+       <result column="syTitle" property="syTitle" jdbcType="VARCHAR"/>
+       <result column="termName" property="termName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+	<sql id="TableName">t_pay_chargeorder</sql>
+    
+	<sql id="ColumnList">
+		A.ID, A.createTime, A.createUserID, A.startDate, A.endDate, A.chargeTypeIds, 
+		A.gradeID,A.schoolYearID,A.termID, A.principal, A.phone, A.title, 
+		A.content, A.publishStatus,A.status
+   	</sql>
+   	
+   	<!-- 新增工单 -->
+	<select id="insertOrder" resultMap="StateModel" parameterType="com.cn.iscp.entity.pay.ChargeOrder">
+		{
+			call p_pay_chargeorder_insert(
+					#{schoolYearId,jdbcType=BIGINT,mode=IN}, 
+					#{termId,jdbcType=BIGINT,mode=IN}, 
+					#{startDate,jdbcType=VARCHAR,mode=IN}, 
+					#{endDate,jdbcType=VARCHAR,mode=IN},  
+					#{createUserId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑工单 -->
+	<select id="updateOrder" resultMap="ChargeOrder" parameterType="com.cn.iscp.entity.pay.ChargeOrder">
+		{
+			call p_pay_chargeorder_update(
+					#{orderId,jdbcType=BIGINT,mode=IN}, 
+					#{content,jdbcType=VARCHAR,mode=IN}, 
+					#{startDate,jdbcType=VARCHAR,mode=IN}, 
+					#{endDate,jdbcType=VARCHAR,mode=IN},  
+					#{principal,jdbcType=VARCHAR,mode=IN}, 
+					#{phone,jdbcType=VARCHAR,mode=IN}, 
+					#{chargeitems,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+       
+    <!-- 分页获取信息列表 -->
+	<select id="findPage" resultMap="ChargeOrder" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.title LIKE '${statName}')
+			ORDER BY A.startDate DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.title LIKE '${statName}')
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="ChargeOrder" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" /> ,g.gradeName,p.schoolYearTitle AS syTitle,t.termName
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_base_grade AS g ON g.ID=A.gradeID
+			LEFT JOIN t_dbase_schoolyear AS p ON p.ID=A.schoolYearID
+			LEFT JOIN t_base_terms AS t ON t.ID=A.termID
+			WHERE A.ID = #{orderId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 根据编号判断价格是否存在-->
+	<select id="findpriceById" statementType="CALLABLE" resultType="java.lang.Integer" parameterType="com.cn.iscp.entity.pay.ChargeOrder">
+		SELECT COUNT(*)
+			FROM <include refid="TableName" /> AS A 
+			LEFT JOIN t_pay_chargeitem AS g ON A.ID=g.orderID
+			WHERE g.orderID = #{orderId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取最新学期班级缴费工单 -->
+	<select id="getByStudent" resultMap="ChargeOrder" parameterType="java.lang.Long">
+		{
+			call p_pay_chargeorder_getByStudent(
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-更新状态 -->
+	<update id="updateStatus" parameterType="com.cn.iscp.entity.pay.ChargeOrder">
+		UPDATE <include refid="TableName" />
+			SET publishStatus = #{publishStatus,jdbcType=INTEGER}
+		WHERE ID = #{orderId,jdbcType=BIGINT}
+	</update>
+	
+</mapper>

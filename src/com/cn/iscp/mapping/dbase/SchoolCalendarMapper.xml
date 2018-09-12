@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.dbase.SchoolCalendarDao">
+	
+	<!-- 学年度校历对象 -->
+	<resultMap id="SchoolYear" type="com.cn.iscp.entity.dbase.SchoolYear">
+		<id column="ID" property="syId" jdbcType="BIGINT" />
+		<result column="schoolYearTitle" property="syTitle" jdbcType="VARCHAR" />
+		<result column="term1startDate" property="term1startDate" jdbcType="VARCHAR" />
+		<result column="term1endDate" property="term1endDate" jdbcType="VARCHAR" />
+		<result column="term2startDate" property="term2startDate" jdbcType="VARCHAR" />
+		<result column="term2endDate" property="term2endDate" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="termName" property="termName" jdbcType="VARCHAR" />
+		<result column="calendar1Count" property="calendar1Count" jdbcType="INTEGER" />
+		<result column="calendar2Count" property="calendar2Count" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="SchoolYearTableName"> t_dbase_schoolyear </sql>
+	
+	<sql id="SchoolYearColumnList">
+		A.ID, A.schoolYearTitle, A.term1startDate, A.term1endDate, A.term2startDate, A.term2endDate, A.note
+	</sql>
+	
+	<!-- 分页获取学年度校历信息列表 -->
+	<select id="findPage" resultMap="SchoolYear" parameterType="java.util.Map">
+		SELECT <include refid="SchoolYearColumnList" />,
+				(SELECT COUNT(ID) FROM t_dbase_schoolcalendar WHERE schoolYearID=A.ID AND termID=1) AS calendar1Count,
+				(SELECT COUNT(ID) FROM t_dbase_schoolcalendar WHERE schoolYearID=A.ID AND termID=2) AS calendar2Count
+			FROM <include refid="SchoolYearTableName" /> AS A 
+			WHERE A.schoolYearTitle LIKE '${statName}' 
+			ORDER BY A.term1startDate DESC 
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	<!-- 获取学年度校历分页信息列表总数 -->
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="SchoolYearTableName" /> AS A 
+			WHERE A.schoolYearTitle LIKE '${statName}'
+	</select>
+	
+	<!-- 根据编号获取学年度校历对象 -->
+	<select id="findById" resultMap="SchoolYear" parameterType="java.lang.Long">
+		SELECT <include refid="SchoolYearColumnList" />
+			FROM <include refid="SchoolYearTableName" /> AS A
+			WHERE A.ID = #{syId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 获取所有对象 -->
+	<select id="findAll" resultMap="SchoolYear">
+		SELECT <include refid="SchoolYearColumnList" />
+			FROM <include refid="SchoolYearTableName" /> AS A
+			ORDER BY term1startDate DESC
+	</select>
+	
+	<!-- 生成校历 -->
+	<select id="addCalendar" statementType="CALLABLE" parameterType="java.util.Map">
+		{
+			call p_dbase_addCalendar(
+					#{timeFrameOne,jdbcType=VARCHAR,mode=IN}, 
+					#{timeFrameTwo,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 编辑校历 -->
+	<select id="editCalendar" statementType="CALLABLE" parameterType="java.util.Map">
+		{
+			call p_dbase_editCalendar(
+					#{calendarId,jdbcType=BIGINT,mode=IN}, 
+					#{timeFrameOne,jdbcType=VARCHAR,mode=IN}, 
+					#{timeFrameTwo,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	
+	<!-- 周校历对象 -->
+	<resultMap id="SchoolCalendar" type="com.cn.iscp.entity.dbase.SchoolCalendar">
+		<id column="ID" property="scId" jdbcType="BIGINT" />
+		<result column="schoolYearID" property="schoolYearId" jdbcType="BIGINT" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="week" property="week" jdbcType="INTEGER" />
+		<result column="startDate" property="startDate" jdbcType="VARCHAR" />
+		<result column="endDate" property="endDate" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 根据学年度校历获取周期校历 -->
+	<select id="findCalendarByTerm" resultMap="SchoolCalendar" parameterType="com.cn.iscp.entity.dbase.SchoolCalendar">
+		{
+			call p_dbase_schoolcalendar_findByTerm(
+					#{schoolYearId,jdbcType=BIGINT,mode=IN}, 
+					#{termId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+			
+	</select>
+	
+	<!-- 获取当前学年 -->
+	<select id="getCurrentSchoolYearId" statementType="CALLABLE" parameterType="java.util.Map">
+		{call p_sys_getCurrentSchoolYear(
+			#{schoolYearId,jdbcType=BIGINT,mode=OUT}
+		)}
+	</select>
+	
+	<!-- 获取当前学年度 -->
+	<select id="getCurrentTermId" statementType="CALLABLE" parameterType="java.util.Map">
+		{call p_sys_getCurrentTermID(
+			#{termId,jdbcType=BIGINT,mode=OUT}
+		)}
+	</select>
+	
+	<!-- 获取当前学学校周期-->
+	<select id="getCurrentWeek" statementType="CALLABLE" parameterType="java.util.Map">
+		{call p_sys_getCurrentWeek(
+			#{week,jdbcType=INTEGER,mode=OUT}
+		)}
+	</select>
+	
+</mapper>

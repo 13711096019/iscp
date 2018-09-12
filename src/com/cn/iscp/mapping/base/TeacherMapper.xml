@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.TeacherDao">
+	
+	<!-- 教员对象 -->
+	<resultMap id="Teacher" type="com.cn.iscp.entity.base.Teacher">
+		<id column="ID" property="teacherId" jdbcType="BIGINT" />
+		<result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		<result column="birthday" property="birthday" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="teacherLabel" property="teacherLabel" jdbcType="VARCHAR" />
+		<result column="teacherDesc" property="teacherDesc" jdbcType="VARCHAR" />
+		<result column="vocation" property="vocation" jdbcType="VARCHAR" />
+		<result column="feature" property="feature" jdbcType="VARCHAR" />
+		<result column="undergo" property="undergo" jdbcType="VARCHAR" />
+		<result column="idea" property="idea" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="passWord" property="passWord" jdbcType="VARCHAR" />
+		<result column="subjectIds" property="subjectIds" jdbcType="VARCHAR" />
+		<result column="roleRank" property="roleRank" jdbcType="INTEGER" />
+		<result column="roleIds" property="roleIds" jdbcType="BIGINT" />
+		<result column="roleNames" property="roleNames" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 公共实体类 -->
+	<resultMap id="Artascope" type="com.cn.iscp.model.Artascope">
+		<result column="recordsCount" property="recordsCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_teacher </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.teacherName, A.sexID, A.birthday, A.mobile, A.email, A.headPortrait, 
+		A.note, A.teacherLabel, A.teacherDesc, A.vocation, A.feature, A.undergo, A.idea, 
+		A.status, A.flagtime
+	</sql>
+	
+	<!-- 分页获取学生列表 -->
+	<select id="findPage" statementType="CALLABLE" resultMap="Artascope,Teacher" parameterType="java.util.Map">
+		{
+			call p_base_findTeacherByPage(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, #{statName,jdbcType=VARCHAR,mode=IN}, 
+					#{startRecord,jdbcType=INTEGER,mode=IN}, #{pageSize,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 分页获取信息列表
+	<select id="findPage" resultMap="Teacher" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.teacherName LIKE '${statName}' OR A.mobile LIKE '${statName}') ${conditions}
+			ORDER BY A.flagtime DESC
+			LIMIT ${startRecord},${pageSize}
+	</select>
+	
+	获取分页信息列表总数
+	<select id="getPageCount" resultType="java.lang.Long" parameterType="java.util.Map">
+		SELECT COUNT(A.ID) 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 AND (A.teacherName LIKE '${statName}' OR A.mobile LIKE '${statName}') ${conditions}
+	</select> -->
+	
+	<!-- 获取教师列表 -->
+	<select id="findBytotal" resultMap="Teacher" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.status > 0 
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Teacher" parameterType="java.lang.Long">
+		SELECT <include refid="ColumnList" />,
+				MIN(r.roleRank) AS roleRank, CONCAT(',',GROUP_CONCAT(ru.roleID),',') AS roleIds, 
+				GROUP_CONCAT(r.roleAlias) AS roleNames, 
+				(SELECT CONCAT(',',GROUP_CONCAT(subjectID),',') FROM t_base_teachersubject WHERE teacherID = A.ID) AS subjectIds
+			FROM <include refid="TableName" /> AS A 
+				LEFT JOIN t_auth_roleuser AS ru ON ru.userID=A.ID 
+				LEFT JOIN t_auth_rolemgr AS r ON r.ID=ru.roleID 
+			WHERE A.ID = #{teacherId,jdbcType=BIGINT} 
+			ORDER BY r.roleRank ASC 
+	</select>
+	
+	<!-- 根据科目获取教师列表 -->
+	<select id="findBySubject" resultMap="Teacher" parameterType="java.lang.Long">
+		SELECT t.ID,t.teacherName,t.headPortrait,t.mobile 
+			FROM t_base_teachersubject AS ts
+					LEFT JOIN t_base_teacher AS t ON t.ID=ts.teacherID
+			WHERE ts.subjectID = #{subjectId,jdbcType=BIGINT,mode=IN} AND ts.`status` = 1 AND t.ID IS NOT NULL
+			ORDER BY ts.teacherID ASC
+	</select>
+	
+	<!-- 添加教员信息 -->
+	<select id="addTeacher" statementType="CALLABLE" resultMap="Teacher" parameterType="com.cn.iscp.entity.base.Teacher">
+		{
+			call p_base_addTeacher(#{teacherName,jdbcType=VARCHAR,mode=IN}, 
+					#{roleIds,jdbcType=VARCHAR,mode=IN},#{sexId,jdbcType=INTEGER,mode=IN},
+					#{birthday,jdbcType=VARCHAR,mode=IN}, #{mobile,jdbcType=VARCHAR,mode=IN},
+					#{email,jdbcType=VARCHAR,mode=IN}, #{headPortrait,jdbcType=VARCHAR,mode=IN},
+					#{note,jdbcType=VARCHAR,mode=IN}, #{subjectIds,jdbcType=VARCHAR,mode=IN},
+					#{status,jdbcType=INTEGER,mode=IN}, #{flagtime,jdbcType=BIGINT,mode=IN})
+		}
+	</select>
+	
+	<!-- 更新教员信息  -->
+	<select id="editTeacher" statementType="CALLABLE" resultMap="Teacher" parameterType="com.cn.iscp.entity.base.Teacher">
+		{
+			call p_base_editTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, #{teacherName,jdbcType=VARCHAR,mode=IN}, 
+					#{roleIds,jdbcType=VARCHAR,mode=IN}, #{sexId,jdbcType=INTEGER,mode=IN},
+					#{birthday,jdbcType=VARCHAR,mode=IN}, #{mobile,jdbcType=VARCHAR,mode=IN},
+					#{email,jdbcType=VARCHAR,mode=IN}, #{headPortrait,jdbcType=VARCHAR,mode=IN},
+					#{note,jdbcType=VARCHAR,mode=IN}, #{subjectIds,jdbcType=VARCHAR,mode=IN},
+					#{vocation,jdbcType=VARCHAR,mode=IN}, #{feature,jdbcType=VARCHAR,mode=IN},
+					#{undergo,jdbcType=VARCHAR,mode=IN}, #{idea,jdbcType=VARCHAR,mode=IN},
+					#{status,jdbcType=INTEGER,mode=IN}, #{flagtime,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 删除教员信息 -->
+	<select id="delTeacher" statementType="CALLABLE" resultType="java.lang.Integer" parameterType="java.lang.Long">
+		{
+			call p_base_delTeacher(
+					#{teacherId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 修改对象 -->
+	<update id="updateFlagtime" parameterType="com.cn.iscp.entity.base.Teacher">
+		UPDATE <include refid="TableName" />
+		SET flagtime = #{flagtime,jdbcType=BIGINT}
+		WHERE ID = #{teacherId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 修改头像 -->
+	<update id="updateHeadPortrait" parameterType="com.cn.iscp.entity.base.Teacher">
+		UPDATE <include refid="TableName" />
+		SET headPortrait = #{headPortrait,jdbcType=VARCHAR}, flagtime = #{flagtime,jdbcType=BIGINT}
+		WHERE ID = #{teacherId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 处理教员科目关系 -->
+	<select id="handleTeacherSubject" parameterType="com.cn.iscp.entity.base.Teacher">
+		{
+			call p_base_handleTeacherSubject(
+					#{teacherId,jdbcType=BIGINT,mode=IN}, 
+					#{subjectIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 教师登录 -->
+	<select id="login" resultMap="Teacher" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />,u.userKey 
+			FROM t_auth_usermgr AS u 
+						LEFT JOIN <include refid="TableName" /> AS A ON A.ID=u.ID
+			WHERE u.`status` = #{status,jdbcType=INTEGER} 
+					AND u.userType = #{userType,jdbcType=INTEGER} 
+					AND u.logAccount = #{account,jdbcType=VARCHAR}
+					AND u.logPassword = #{password,jdbcType=VARCHAR}
+			ORDER BY u.ID ASC;
+	</select>
+	
+	<!-- 根据架构编号获取电话本列表 -->
+	<select id="findPhoneBook" resultMap="Teacher" parameterType="java.lang.Long">
+		{
+			call p_task_findPhoneBook(
+					#{roleId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据编号集合获取姓名列表 -->
+	<select id="findNameByIds" resultMap="Teacher" parameterType="java.lang.String">
+		SELECT GROUP_CONCAT(teacherName) AS teacherName FROM t_base_teacher WHERE FIND_IN_SET(ID,#{userIds,jdbcType=VARCHAR});
+	</select>
+		
+</mapper>

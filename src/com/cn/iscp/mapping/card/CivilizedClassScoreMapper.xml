@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.card.civilized.CivilizedClassScoreDao">
+	
+	<!-- 班级创文得分对象 -->
+	<resultMap id="CivilizedClassScore" type="com.cn.iscp.entity.card.civilized.CivilizedClassScore">
+		<id column="ID" property="scoreId" jdbcType="BIGINT" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+		<result column="periodType" property="periodType" jdbcType="INTEGER" />
+		<result column="year" property="year" jdbcType="INTEGER" />
+		<result column="termID" property="termId" jdbcType="BIGINT" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="week" property="week" jdbcType="INTEGER" />
+		<result column="weekDay" property="weekDay" jdbcType="INTEGER" />
+		<result column="studyDate" property="studyDate" jdbcType="VARCHAR" />
+		<result column="score1" property="sanitaryCleaning" jdbcType="DOUBLE" />
+		<result column="score2" property="classroomAppearance" jdbcType="DOUBLE" />
+		<result column="score3" property="residentsCivility" jdbcType="DOUBLE" />
+		<result column="score4" property="playtimeDiscipline" jdbcType="DOUBLE" />
+		<result column="score5" property="playgroundDiscipline" jdbcType="DOUBLE" />
+		<result column="score6" property="eatDiscipline" jdbcType="DOUBLE" />
+		<result column="score7" property="publicUtilities" jdbcType="DOUBLE" />
+		<result column="score8" property="looksAppearance" jdbcType="DOUBLE" />
+		<result column="score9" property="ridingDiscipline" jdbcType="DOUBLE" />
+		<result column="score10" property="outsideDiscipline" jdbcType="DOUBLE" />
+		<result column="score11" property="morningReading" jdbcType="DOUBLE" />
+		<result column="adjust" property="adjust" jdbcType="DOUBLE" />
+		<result column="total" property="total" jdbcType="DOUBLE" />
+		<result column="ranking" property="ranking" jdbcType="INTEGER" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		
+		<result column="period" property="period" jdbcType="INTEGER" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="cycle" property="cycle" jdbcType="VARCHAR" />
+		<result column="loopIndex" property="loopIndex" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 终端-获取相应阶段的创文评分列表-->
+	<select id="findClassScoreByStage" resultMap="CivilizedClassScore" parameterType="com.cn.iscp.entity.card.civilized.CivilizedClassScore">
+		{
+			call p_card_createcivilization_consult(
+					#{classNum,jdbcType=BIGINT,mode=IN}, 
+					#{periodType,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-获取班级排名列表-->
+	<select id="findClasssSore" statementType="CALLABLE" resultMap="CivilizedClassScore,CivilizedClassScore" 
+			parameterType="com.cn.iscp.entity.card.civilized.CivilizedClassScore">
+		{
+			call p_card_createcivilization_findClasssSore(
+					#{periodType,jdbcType=INTEGER,mode=IN}, 
+					#{studyDate,jdbcType=VARCHAR,mode=IN}, 
+					#{week,jdbcType=INTEGER,mode=IN}, 
+					#{cycle,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 定时器-每天凌晨统计班级创文排名-->
+	<select id="censusClassScore">
+		{
+			call p_card_createcivilization_statistic()
+		}
+	</select>
+	
+	<!-- PC-按日统计班级创文排名-->
+	<select id="censusClassScoreByDay" parameterType="java.lang.String">
+		{
+			call p_card_createcivilization_statistic_day(
+				#{studyDate,jdbcType=VARCHAR,mode=IN}
+			)
+		}
+	</select>
+	
+</mapper>

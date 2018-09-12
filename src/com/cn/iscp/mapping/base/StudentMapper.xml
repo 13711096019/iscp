@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.iscp.dao.base.StudentDao">
+	
+	<!-- 学生对象 -->
+	<resultMap id="Student" type="com.cn.iscp.entity.base.Student">
+		<id column="ID" property="studentId" jdbcType="BIGINT" />
+		<result column="studentNo" property="studentNo" jdbcType="VARCHAR" />
+		<result column="studentNum" property="studentNum" jdbcType="VARCHAR" />
+		<result column="name" property="studentName" jdbcType="VARCHAR" />
+		<result column="sexID" property="sexId" jdbcType="INTEGER" />
+		<result column="birthday" property="birthday" jdbcType="VARCHAR" />
+		<result column="idcard" property="idCard" jdbcType="VARCHAR" />
+		<result column="studentCard" property="studentCard" jdbcType="VARCHAR" />
+		<result column="studentCardPhy" property="studentCardPhy" jdbcType="VARCHAR" />
+		<result column="studentCardGPS" property="studentCardGPS" jdbcType="VARCHAR" />
+		<result column="studentCardGPSPhy" property="studentCardGPSPhy" jdbcType="VARCHAR" />
+		<result column="startHeight" property="startHeight" jdbcType="DOUBLE" />
+		<result column="startWeight" property="startWeight" jdbcType="DOUBLE" />
+		<result column="classEntityID" property="classEntityId" jdbcType="INTEGER" />
+		<result column="liveAddress" property="liveAddress" jdbcType="VARCHAR" />
+		<result column="note" property="note" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="flagtime" property="flagtime" jdbcType="BIGINT" />
+		<result column="admissionDate" property="admissionDate" jdbcType="VARCHAR" />
+		<result column="nation" property="nation" jdbcType="VARCHAR" />
+		<result column="nativePlace" property="nativePlace" jdbcType="VARCHAR" />
+		<result column="contactNumber" property="contactNumber" jdbcType="VARCHAR" />
+		
+		<result column="userKey" property="userKey" jdbcType="VARCHAR" />
+		<result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+		<result column="className" property="className" jdbcType="VARCHAR" />
+		<result column="classEntityUpgradeID" property="classNum" jdbcType="BIGINT" />
+	    <result column="gradeId" property="gradeId" jdbcType="BIGINT" />
+	    <result column="hasAdmissionDate" property="hasAdmissionDate" jdbcType="BIGINT" />	
+	    <result column="isNewborn" property="isNewborn" jdbcType="BIGINT" />	
+		<result column="logAccount" property="logAccount" jdbcType="VARCHAR" />
+		<result column="logPassword" property="logPassword" jdbcType="VARCHAR" />
+		<result column="studentIds" property="studentIds" jdbcType="VARCHAR" />
+		<result column="orderId" property="orderId" jdbcType="BIGINT" />
+		<result column="isPay" property="isPay" jdbcType="INTEGER" />
+		
+		<result column="tuitionPrice" property="tuitionPrice" jdbcType="VARCHAR" />
+		<result column="breakfastPrice" property="breakfastPrice" jdbcType="VARCHAR" />
+		<result column="lunchPrice" property="lunchPrice" jdbcType="VARCHAR" />
+		<result column="communicationPrice" property="communicationPrice" jdbcType="VARCHAR" />
+		<result column="uniformPrice" property="uniformPrice" jdbcType="VARCHAR" />
+		<result column="sitePrice" property="sitePrice" jdbcType="VARCHAR" />
+		<result column="guardianName" property="guardianName" jdbcType="VARCHAR" />
+		<result column="stature" property="stature" jdbcType="VARCHAR" />
+		<result column="siteName" property="siteName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 公共实体类 -->
+	<resultMap id="Artascope" type="com.cn.iscp.model.Artascope">
+		<result column="recordsCount" property="recordsCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="TableName"> t_base_student </sql>
+	
+	<sql id="ColumnList">
+		A.ID, A.studentNo, A.studentNum, A.name, A.sexID, A.birthday, A.idcard, 
+		A.studentCard, A.studentCardPhy, A.studentCardGPS, A.studentCardGPSPhy,
+		A.startHeight, A.startWeight, A.liveAddress, A.classEntityID, A.note, 
+		A.headPortrait, A.status, A.flagtime, A.admissionDate, A.nation, 
+		A.nativePlace, A.contactNumber
+	</sql>
+	
+	<!-- 分页获取学生列表 -->
+	<select id="findPage" statementType="CALLABLE" resultMap="Artascope,Student" parameterType="java.util.Map">
+		{
+			call p_base_student_findByPage(
+					#{classEntityId,jdbcType=BIGINT,mode=IN}, #{tempState,jdbcType=INTEGER,mode=IN},
+					#{statName,jdbcType=VARCHAR,mode=IN}, #{startRecord,jdbcType=INTEGER,mode=IN},
+					#{pageSize,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据编号获取对象 -->
+	<select id="findById" resultMap="Student" parameterType="java.lang.Long">
+		{
+			call p_base_student_findById(
+					#{studentId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据班级获取学生信息 -->
+	<select id="findByClass" resultMap="Student" parameterType="java.lang.Long">
+		{
+			call p_base_student_findByClass(
+					#{classEntityId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-批量绑定家长手机号 -->
+	<select id="handleBindPhone" statementType="CALLABLE" parameterType="com.cn.iscp.entity.base.Student">
+		{
+			call p_base_handleBindPhone(
+					#{studentIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-批量绑定学生学号 -->
+	<select id="handleStudentNum" statementType="CALLABLE" parameterType="com.cn.iscp.entity.base.Student">
+		{
+			call p_base_student_handleStudentNum(
+					#{studentIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 根据班级获取学生姓名列表 -->
+	<select id="getStudentNamesByClass" resultType="java.lang.String" parameterType="java.lang.Long">
+		SELECT GROUP_CONCAT(A.name) AS name 
+			FROM <include refid="TableName" /> AS A 
+			WHERE A.classEntityID = #{classEntityId, jdbcType=BIGINT} AND A.status = 1
+			ORDER BY A.studentNo DESC 
+	</select>
+	
+	<!-- 根据班级获取已经绑定学生卡的学生信息 -->
+	<select id="findByHasCard" resultMap="Student" parameterType="java.lang.Long">
+		{
+			call p_base_student_findByHasCard(
+					#{classEntityId,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 获取最后一个对象 -->
+	<select id="findFinal" resultMap="Student">
+		{
+			call p_base_student_findByFinal()
+		}
+	</select>
+	
+	<!-- 修改对象 -->
+	<update id="update" parameterType="com.cn.iscp.entity.base.Student">
+		UPDATE <include refid="TableName" />
+		<set>
+			<if test="studentNum != null">
+				studentNum = #{studentNum,jdbcType=INTEGER},
+			</if>
+			<if test="studentName != null &amp;&amp; studentName != ''">
+				name = #{studentName,jdbcType=VARCHAR},
+			</if>
+			<if test="sexId != null">
+				sexID = #{sexId,jdbcType=INTEGER},
+			</if>
+			<if test="birthday != null &amp;&amp; birthday != ''">
+				birthday = #{birthday,jdbcType=VARCHAR},
+			</if>
+			<if test="idCard != null &amp;&amp; idCard != ''">
+				idcard = #{idCard,jdbcType=VARCHAR},
+			</if>
+			<if test="admissionDate != null &amp;&amp; admissionDate != ''">
+				admissionDate = #{admissionDate,jdbcType=VARCHAR},
+			</if>
+			<if test="contactNumber != null &amp;&amp; contactNumber != ''">
+				contactNumber = #{contactNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="studentNo != null &amp;&amp; studentNo != ''">
+				studentNo = #{studentNo,jdbcType=VARCHAR},
+			</if>
+			<if test="classEntityId != null">
+				classEntityId = #{classEntityId,jdbcType=INTEGER},
+			</if>
+			<if test="liveAddress != null &amp;&amp; liveAddress != ''">
+				liveAddress = #{liveAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="note != null &amp;&amp; note != ''">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="headPortrait != null &amp;&amp; headPortrait != ''">
+				headPortrait = #{headPortrait,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="flagtime != null">
+				flagtime = #{flagtime,jdbcType=BIGINT},
+			</if>
+		</set>
+		WHERE ID = #{studentId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 添加学生信息 -->
+	<select id="addStudent" statementType="CALLABLE" resultMap="Student" parameterType="com.cn.iscp.entity.base.Student">
+		{
+			call p_base_addStudent(
+					#{classNum,jdbcType=BIGINT,mode=IN}, #{studentName,jdbcType=VARCHAR,mode=IN}, 
+					#{studentNum,jdbcType=INTEGER,mode=IN}, 
+					#{sexId,jdbcType=INTEGER,mode=IN}, #{birthday,jdbcType=VARCHAR,mode=IN}, 
+					#{idCard,jdbcType=VARCHAR,mode=IN}, #{admissionDate,jdbcType=VARCHAR,mode=IN}, 
+					#{contactNumber,jdbcType=VARCHAR,mode=IN}, #{liveAddress,jdbcType=VARCHAR,mode=IN}, 
+					#{note,jdbcType=VARCHAR,mode=IN}, #{headPortrait,jdbcType=VARCHAR,mode=IN}, 
+					#{status,jdbcType=INTEGER,mode=IN}, #{flagtime,jdbcType=BIGINT,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 导入学生信息 -->
+	<select id="insertStudent" statementType="CALLABLE" resultMap="Student" parameterType="java.util.Map">
+		{
+			call p_base_insertStudent(
+					#{classNum,jdbcType=BIGINT,mode=IN}, #{studentNum,jdbcType=VARCHAR,mode=IN}, 
+					#{studentName,jdbcType=VARCHAR,mode=IN}, #{sex,jdbcType=VARCHAR,mode=IN},
+					#{idCard,jdbcType=VARCHAR,mode=IN}, #{address,jdbcType=VARCHAR,mode=IN},
+					#{parentName,jdbcType=VARCHAR,mode=IN}, #{parentCard,jdbcType=VARCHAR,mode=IN}, 
+					#{phone,jdbcType=VARCHAR,mode=IN}, #{flagtime,jdbcType=BIGINT,mode=IN})
+		}
+	</select>
+	
+	<!-- 删除学生信息 -->
+	<select id="delStudent" statementType="CALLABLE" resultType="java.lang.Integer" parameterType="java.lang.Long">
+		{
+			call p_base_delStudent(#{studentId,jdbcType=BIGINT,mode=IN})
+		}
+	</select>
+	
+	<!-- 学生登录 -->
+	<select id="login" resultMap="Student" parameterType="java.util.Map">
+		SELECT <include refid="ColumnList" />,ce.classEntityUpgradeID,c.className
+			FROM t_auth_usermgr AS u
+						LEFT JOIN <include refid="TableName" /> AS A ON A.ID=u.ID
+						LEFT JOIN t_dbase_classentity AS ce ON ce.ID=A.classEntityID
+						LEFT JOIN t_base_class AS c ON c.ID=ce.classID
+			WHERE u.`status` = #{status,jdbcType=INTEGER} AND A.`status` = #{status,jdbcType=INTEGER}
+					AND u.userType = #{userType,jdbcType=INTEGER} 
+					AND u.logAccount = #{account,jdbcType=VARCHAR}
+					AND u.logPassword = #{password,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 学生调班 -->
+	<select id="changeClass" parameterType="java.util.Map">
+		{
+			call p_card_changeClass(
+					#{classNumFrom,jdbcType=BIGINT,mode=IN}, 
+					#{classNumTo,jdbcType=BIGINT,mode=IN},
+					#{studentId,jdbcType=BIGINT,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 根据班级动态编号清空学生信息 -->
+	<select id="emptyStudentByClassNum" parameterType="java.lang.Long">
+		{
+			call p_base_emptyStudentByClassNum(
+					#{classNum,jdbcType=BIGINT,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 根据家长编号获取学生信息 -->
+	<select id="findByPatriarch" resultMap="Student" parameterType="java.lang.String">
+		{
+			call p_base_student_findByPatriarch(
+					#{mobile,jdbcType=VARCHAR,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 根据姓名和身份证匹配学生 -->
+	<select id="findByNameAndCard" resultMap="Student" parameterType="com.cn.iscp.entity.base.Student">
+		{
+			call p_base_student_findByNameAndCard(
+					#{studentName,jdbcType=VARCHAR,mode=IN}, 
+					#{idCard,jdbcType=VARCHAR,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 修改学生详细信息 -->
+	<select id="updateStudentInfo" parameterType="java.util.Map">
+		{
+			call p_base_student_updateStudentInfo(
+					#{studentId,jdbcType=BIGINT,mode=IN}, 
+					#{studentName,jdbcType=VARCHAR,mode=IN}, 
+					#{idCard,jdbcType=VARCHAR,mode=IN}, 
+					#{sexId,jdbcType=INTEGER,mode=IN}, 
+					#{birthday,jdbcType=VARCHAR,mode=IN}, 
+					#{nation,jdbcType=VARCHAR,mode=IN}, 
+					#{nativePlace,jdbcType=VARCHAR,mode=IN}, 
+					#{contactNumber,jdbcType=VARCHAR,mode=IN}, 
+					#{liveAddress,jdbcType=VARCHAR,mode=IN}, 
+					#{admissionDate,jdbcType=VARCHAR,mode=IN}, 
+					#{fatherName,jdbcType=VARCHAR,mode=IN}, 
+					#{fatherCard,jdbcType=VARCHAR,mode=IN}, 
+					#{motherName,jdbcType=VARCHAR,mode=IN}, 
+					#{motherCard,jdbcType=VARCHAR,mode=IN}
+			)
+		}
+	</select>
+	
+	<!-- 缴费-分页获取学生列表 -->
+	<select id="findPageByPay" statementType="CALLABLE" resultMap="Artascope,Student" parameterType="java.util.Map">
+		{
+			call p_base_student_findByPay(
+					#{gradeId,jdbcType=BIGINT,mode=IN},
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{hasAdmissionDate,jdbcType=INTEGER,mode=IN},
+					#{isNewborn,jdbcType=INTEGER,mode=IN},
+					#{statName,jdbcType=VARCHAR,mode=IN},
+					#{startRecord,jdbcType=INTEGER,mode=IN},
+					#{pageSize,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- 缴费-导出学生信息 -->
+	<select id="findExcelByPay" statementType="CALLABLE" resultMap="Student" parameterType="java.util.Map">
+		{
+			call p_base_student_findExcelPay(
+					#{gradeId,jdbcType=BIGINT,mode=IN}, 
+					#{classNum,jdbcType=BIGINT,mode=IN},
+					#{hasAdmissionDate,jdbcType=INTEGER,mode=IN},
+					#{isNewborn,jdbcType=INTEGER,mode=IN}
+				)
+		}
+	</select>
+	
+	<!-- PC-批量绑定学生入学日期 -->
+	<select id="handleAdmissionDate" statementType="CALLABLE" parameterType="java.lang.String">
+		{
+			call p_base_student_handleAdmissionDate(
+					#{studentIds,jdbcType=VARCHAR,mode=IN}
+				)
+		}
+	</select>
+	
+</mapper>
