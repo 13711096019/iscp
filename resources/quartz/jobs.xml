@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='utf-8'?>
+<quartz xmlns="http://www.opensymphony.com/quartz/JobSchedulingData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.opensymphony.com/quartz/JobSchedulingData
+  http://www.opensymphony.com/quartz/xml/job_scheduling_data_1_5.xsd"
+	version="1.5">
+	
+	<!-- 
+		0 0 10,14,16 * * ?  每天上午10点，下午2点和下午4点
+		0 0,15,30,45 * 1-10 * ?  每月前10天每隔15分钟
+		30 0 0 26 7 ? 1999  在1999年7月26日午夜过30秒时
+		0 0 8-5 ? * MON-FRI  每个工作日的工作时间
+	 -->
+	
+	<!-- 每1分钟执行一次 -->
+	<job>
+		<job-detail>
+			<name>MinOneTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Perform once every 1 minutes
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.min.MinOneTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>MinOneTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>MinOneTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0/1 * * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每5分钟执行一次 -->
+	<job>
+		<job-detail>
+			<name>MinFiveTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Once every 5 minutes
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.min.MinFiveTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>MinFiveTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>MinFiveTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0/5 * * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	
+	<!-- 每天5点,12点执行一次 -->
+	<job>
+		<job-detail>
+			<name>HourTwelveTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				12 o'clock a day and 19 p.m.
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.hour.HourTwelveTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>HourTwelveTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>HourTwelveTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<!-- 0 0 12,19 * * ? -->
+				<cron-expression>0 0 5,12 * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每天早上一点执行一次 -->
+	<job>
+		<job-detail>
+			<name>DayOneTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Once a day at one o'clock in the morning
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.day.DayOneTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>DayOneTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>DayOneTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0 1 * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每天早上两点执行一次 -->
+	<job>
+		<job-detail>
+			<name>DayTwoTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Once a day at two o'clock in the morning
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.day.DayTwoTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>DayTwoTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>DayTwoTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0 2 * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每天晚上十一点执行一次 -->
+	<job>
+		<job-detail>
+			<name>DayTricosaTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Run at 11:00 every night
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.day.DayTricosaTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>DayTricosaTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>DayTricosaTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0 23 * * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每周五下午两点执行一次 -->
+	<job>
+		<job-detail>
+			<name>WeekFiveFifteenTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Once a week at 3 p.m. on Fridays
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.week.FriFifteenTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>WeekFiveTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>WeekFiveTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0 15 ? * THU</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+	<!-- 每月20号两点执行一次 -->
+	<job>
+		<job-detail>
+			<name>MonthTwentyTimer</name>
+			<group>DEFAULT</group>
+			<description>
+				Perform 20 times at two o'clock every month.
+			</description>
+			<job-class>
+				com.cn.unit.quartz.timer.month.MonthTwentyTimer
+			</job-class>
+			<volatility>false</volatility>
+			<durability>false</durability>
+			<recover>false</recover>
+		</job-detail>
+		<trigger>
+			<cron>
+				<name>MonthTwentyTimerJob</name>
+				<group>DEFAULT</group>
+				<job-name>MonthTwentyTimerJob</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>0 0 2 1 * ?</cron-expression>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>10000</repeat-interval>
+			</cron>
+		</trigger>
+	</job>
+	
+</quartz>
